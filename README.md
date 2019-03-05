@@ -1,20 +1,20 @@
 # DiscordBot
-GETsharp Discord bot readme. Dette er en bot for startIT/getIT kurs for å hjelpe lærere og elever i kursets løp.
+GETsharp Discord bot readme. Dette er en bot for startIT/getIT kurs for Ã¥ hjelpe lÃ¦rere og elever i kursets lÃ¸p.
 ***
 #### Fremdriftsplan
 - [ ] Crash/Shutdown handler program
 - [ ] Mer info som sendes til elever
 - [ ] Interaktivitet gjennom DM med elever
-- [ ] Automatiske påminnelser om video osv til elever som mangler
-- [ ] "Oppmøte" registrering
+- [ ] Automatiske pÃ¥minnelser om video osv til elever som mangler
+- [ ] "OppmÃ¸te" registrering
 - [ ] Automatisk anngi roller til nye elever
 - [ ] Generering av invite linker
 - [ ] Sende invite linker i DM
 - [ ] Fjerne invokerende meldinger
-- [ ] Sette "synlighet" på admin lvl kommandoer så de bare synes for admins
+- [ ] Sette "synlighet" pÃ¥ admin lvl kommandoer sÃ¥ de bare synes for admins
 - [ ] Sende Template filer til brukere i DM
 - [ ] Sende ressursjlinker til brukere i DM
-- [ ] Registrere oppmøte via kommando
+- [ ] Registrere oppmÃ¸te via kommando
 - [ ] Registrere video via kommando/evt via DM fra elev til BOT-account
 ***
 ####  Milestones
@@ -22,7 +22,11 @@ GETsharp Discord bot readme. Dette er en bot for startIT/getIT kurs for å hjelpe
 * Basic Interaktivitet
 * Basic Interakivitet gjennom DM
 * Avansert Interaktivitet i chat gjennom kommandoer med flere parametere
-* Automatiske påminnelser i general Chat
-* Automatiske påminnelser i DM (tidsbasert)
-* Automatiske påminnelser i DM basert på oppmøte/Videoregistrering
+* Automatiske pÃ¥minnelser i general Chat
+* Automatiske pÃ¥minnelser i DM (tidsbasert)
+* Automatiske pÃ¥minnelser i DM basert pÃ¥ oppmÃ¸te/Videoregistrering
 *** 
+#### Additional
+- Mulighet til Ã¥ "videresende" DM meldinger fra elever til en, eller flere bot master kontoer. 
+
+***
