@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Discord.Commands;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -119,11 +120,36 @@ namespace MyBot
 
         private async Task ReplyUserDmAsync(SocketMessage msg)
         {
-            Logging($"Message recieved from: {msg.Author.Username} id: {msg.Author.Id}\nContent: {msg.Content}");
-            Console.WriteLine("DM: " + msg.Channel.Name);
             if (msg.Channel.Name != "general" && !msg.Author.IsBot) //Message is DM
             {
-
+                var role = "";
+                Logging($"Message recieved from: {msg.Author.Username} id: {msg.Author.Id}\nContent: {msg.Content}");
+                Console.WriteLine("Revieved DM from: " + msg.Channel.Name);
+                IReadOnlyCollection<SocketRole> userRoles = _guild.GetUser(msg.Author.Id).Roles;
+                //The roles "ADMIN", "TEACHER" and "STUDENT" must be EXCLUSIVE!!!
+                if (userRoles.Count > 0)
+                {
+                    //Console.WriteLine("User has roles!");
+                    foreach (var userRole in userRoles)
+                    {
+                        //Console.WriteLine(userRole.Name);
+                        switch (userRole.Name.ToString())
+                        {
+                            case "ADMIN":
+                                Console.WriteLine("ADMIN ACC");
+                                role = "ADMIN ";
+                                break;
+                            case "STUDENT":
+                                Console.WriteLine("STUDENT ACC");
+                                role = "STUDENT";
+                                break;
+                            case "TEACHER":
+                                Console.WriteLine("TEACHER ACC");
+                                role = "TEACHER";
+                                break;
+                        }
+                    }
+                }
                 if (msg.Content.Split(' ')[0].ToLower().Contains("!info")) //DM message says !info
                 {
                     var report = $"Replying to user: {msg.Author.Username}\n";
@@ -131,6 +157,27 @@ namespace MyBot
                     Logging(report);
                     await msg.Author.SendMessageAsync(
                         "Heisann! Her kommer det mer info etterhvert. Work in progress ;)");
+                }
+                else
+                {
+                    switch (role)
+                    {
+                        //if student, forward to teachers
+                        case "STUDENT":
+                            break;
+
+                        // if Admin this may be a command to the bot
+                        case "ADMIN":
+                            break;
+
+                        // if Teacher this message may be a broadcast to students
+                        case "TEACHER":
+                            break;
+                        default:
+                            SendMessageBotChannel("Unknown user replying to bot", "LOG", "Server");
+                            Logging($"Unregistered user {msg.Author.Username} attempring to communicate with bot: \n{msg.Content}");
+                            break;
+                    }
                 }
             }
         }
