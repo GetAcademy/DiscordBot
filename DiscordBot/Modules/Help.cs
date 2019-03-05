@@ -17,7 +17,7 @@ namespace MyBot.Modules
                 .AddField("Log", "Sends the bot log file as dm to invoker. (ADMIN)")
                 .AddField("Echo", "Echoes the users input")
                 .AddField("PM", "Sends a private message to a given username. (ADMIN)\n" +
-                                "Use: @GET PM [UserID] <message>")
+                                "Use: @GET PM [UserID/\"Username\"] <message>")
                 .AddField("Invite", "Sends a server invite link as pm. If no user id is given, the bot will post in general (ADMIN)\n" +
                                     "Use: @GET Invite [UserID]")
                 .WithColor(Color.Red)

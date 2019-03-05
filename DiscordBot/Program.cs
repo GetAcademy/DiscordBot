@@ -106,10 +106,8 @@ namespace MyBot
             Team2TextChannel = _client.GetGuild(_serverName).GetTextChannel(_team2);
             Team2VoiceChannel = _client.GetGuild(_serverName).GetVoiceChannel(_team2Voice);
 
-            ErrorChannel = _client.GetGuild(_serverName).GetTextChannel(_errors);
-            ErrorChannel = _client.GetGuild(_serverName).GetTextChannel(_errors);
             _guild = _client.GetGuild(_serverName);
-            GeneralChannel.SendMessageAsync("GETsharp Bot is running!");
+            BotChannel.SendMessageAsync("GETsharp Bot is running!");
             return Task.CompletedTask;
         }
 
@@ -117,18 +115,23 @@ namespace MyBot
         {
             SendMessageBotChannel($"User: {arg.Username} Left the server", "User Left", "Automatic");
             return Task.CompletedTask;
-            
         }
 
         private async Task ReplyUserDmAsync(SocketMessage msg)
         {
             Logging($"Message recieved from: {msg.Author.Username} id: {msg.Author.Id}\nContent: {msg.Content}");
-            if (msg.Content.Split(' ')[0].ToLower().Contains("!info"))
+            Console.WriteLine("DM: " + msg.Channel.Name);
+            if (msg.Channel.Name != "general" && !msg.Author.IsBot) //Message is DM
             {
-                var report = $"Replying to user: {msg.Author.Username}\n";
-                SendMessageBotChannel(report, "Reply", "Automatic");
-                Logging(report);
-                await msg.Author.SendMessageAsync("Heisann! Her kommer det mer info etterhvert. Work in progress ;)");
+
+                if (msg.Content.Split(' ')[0].ToLower().Contains("!info")) //DM message says !info
+                {
+                    var report = $"Replying to user: {msg.Author.Username}\n";
+                    SendMessageBotChannel(report, "Reply", "Automatic");
+                    Logging(report);
+                    await msg.Author.SendMessageAsync(
+                        "Heisann! Her kommer det mer info etterhvert. Work in progress ;)");
+                }
             }
         }
 
@@ -146,20 +149,28 @@ namespace MyBot
             var channel = guild.DefaultChannel;
             Logging($"UserID: {user.Id} Joined server");
             Console.WriteLine($"UserID: {user.Id} Joined server");
-            
+            EmbedBuilder build = new EmbedBuilder
+            {
+                Description = $"I kurset kommer vi til å bruke [Github](https://github.com/) til å samle koden dere lager og til hosting av nettsider når vi bygger dem.\n" +
+                              $"For å skrive koden står dere fritt til å velge IDE/teksteditor, men vi anbefaler å bruke " +
+                              $"[Visual Studio](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=15).\n" +
+                              $"Har du en eldre PC kan det være nyttig å bruke [Visual Studio Code](https://code.visualstudio.com/docs?dv=win&wt.mc_id=DX_841432&sku=codewin)\n" +
+                              $"Kurset har oppgaver og informasjon på [Moodle](https://getacademy.moodlecloud.com/)\n" +
+                              $"Informasjon og oppgaver vil også bli gitt på [Google Classroom](https://classroom.google.com/)"
+            };
 
             await user.SendMessageAsync(
                 $"Heisann, {user.Username}! Og velkommen til START IT! Jeg er {_client.CurrentUser.Mention} " +
-                $"og er en robot! Jeg kommer til å være tilgjengelig i chatten \"General\" og kommer til å gi dere " +
+                $"og er en robot! \nJeg kommer til å være tilgjengelig i chatten \"General\" og kommer til å gi dere " +
                 $"påminnelser og informasjon i kurset utover Våren/høsten." +
                 $"\n\nHvis du har noen spørsmål, ta gjerne kontakt med:\n" +
                 $"\t{_client.GetUser(268754579988938752).Mention} Lærer i IT-utvikling\n" +
                 $"\t{_client.GetUser(363256000800751616).Mention} Lærer i Nøkkelkompetanse\n" +
                 $"\t{_client.GetUser(112955646701297664).Mention} Hjelpelærer/Discord ansvarlig\n\n" +
-                $"Ønsker du mer informasjon fra meg, så kan du svare på denne meldingen ved å skrive \"!info\", eller tagge meg og gi kommandoen \"help\" i General."
-                );
+                $"Ønsker du mer informasjon fra meg så kan du svare på denne meldingen ved å skrive \"!info\", eller tagge meg og gi kommandoen \"help\" i General."
+                , false, build.Build());
             
-            await channel.SendMessageAsync($"Welcome, {user.Mention}");
+            await channel.SendMessageAsync($"Velkommen til General, {user.Mention}!");
             //await user.AddRoleAsync(_guild.GetRole(_startIT));
 
         }
