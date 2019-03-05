@@ -21,6 +21,8 @@ namespace MyBot
         #region RoleIDs //REPLACE WITH NEW VALUES
         private readonly ulong _admin = 552055706791182347; //ADMIN ROLE ID
         private readonly ulong _startIT = 544423343978315777; // START IT ROLE ID
+        private readonly ulong _student = 552473233493065748; // STUDENT ROLE ID
+        private readonly ulong _teacher = 552616175415328780; // STUDENT ROLE ID
         #endregion
 
         #region text channels //REPLACE WITH NEW VALUES
@@ -57,8 +59,7 @@ namespace MyBot
         public static SocketVoiceChannel Team2VoiceChannel;
         public static SocketVoiceChannel StartItGeneralVoiceChannel;
         #endregion
-
-
+        
         public static SocketGuild _guild;
 
         public async Task RunBotAsync()
@@ -80,18 +81,33 @@ namespace MyBot
                 .AddSingleton(_client)
                 .AddSingleton(_commands)
                 .BuildServiceProvider();
-            
+
+            #region client Event handler subscriptions
+
             _client.Log += Log; // Adds the local Log() Event handler to the client.
             _client.UserJoined += AnnounceUserJoined; //Add event handler to client.
             _client.MessageDeleted += MessageDeleted;
             _client.Ready += ReadyAsync;
             _client.MessageReceived += ReplyUserDmAsync;
             _client.UserLeft += HandleUserLeaveAsync;
+            _client.GuildMemberUpdated += ReportMemberUpdateAsync;
+            
+
+            #endregion
+
 
             await RegisterCommandsAsync();
             await _client.LoginAsync(TokenType.Bot, _botToken);
             await _client.StartAsync();
             await Task.Delay(-1);
+        }
+
+
+        #region Tasks
+        private Task ReportMemberUpdateAsync(SocketGuildUser arg1, SocketGuildUser arg2)
+        {
+            // Logs and reports to BotChannel of the changes done to the guild member
+            return Task.CompletedTask;
         }
 
         private Task ReadyAsync()
@@ -186,7 +202,7 @@ namespace MyBot
         {
             SendMessageBotChannel($"Message ID: {arg1.Id} Deleted", "Deletion", "Automatic");
             Logging("Message ID: " + arg1.Id + " Deleted");
-           return Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
 
@@ -217,19 +233,10 @@ namespace MyBot
                 $"\t{_client.GetUser(112955646701297664).Mention} Hjelpelærer/Discord ansvarlig\n\n" +
                 $"Ønsker du mer informasjon fra meg så kan du svare på denne meldingen ved å skrive \"!info\", eller tagge meg og gi kommandoen \"help\" i General."
                 , false, build.Build());
-            
+
             await channel.SendMessageAsync($"Velkommen til General, {user.Mention}!");
             //await user.AddRoleAsync(_guild.GetRole(_startIT));
 
-        }
-
-        private static void Logging(string message)
-        {
-            using (StreamWriter sw = File.AppendText(path))
-            {
-                sw.WriteLine(message);
-            }
-            
         }
 
         private static Task Log(LogMessage message)
@@ -260,29 +267,6 @@ namespace MyBot
             return Task.CompletedTask;
         }
 
-        public static void SendMessageBotChannel(string result, string action, string user, SocketUserMessage message = null)
-        {
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.WithColor(Color.Blue)
-                .WithCurrentTimestamp()
-                .AddField("Action:", action)
-                .AddField("User: ", user)
-                .AddField("Result: ", result);
-            BotChannel.SendMessageAsync("", false, builder.Build());
-        }
-
-        private void SendError(SocketUserMessage message, IResult result)
-        {
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.WithTitle("ERROR")
-                .AddField("Invoking message", message.Content)
-                .AddField("Invoking user", message.Author)
-                .WithDescription(result.ErrorReason)
-                .WithCurrentTimestamp()
-                .WithColor(Color.Red);
-            ErrorChannel.SendMessageAsync("", false, builder.Build());
-        }
-
         public async Task RegisterCommandsAsync()
         {
             _client.MessageReceived += HandleCommandAsync;
@@ -310,6 +294,47 @@ namespace MyBot
                 }
             }
         }
+        #endregion
+
+
+        #region Static Methods
+
+        private static void Logging(string message)
+        {
+            using (StreamWriter sw = File.AppendText(path))
+            {
+                sw.WriteLine(message);
+            }
+
+        }
+
+        public static void SendMessageBotChannel(string result, string action, string user, SocketUserMessage message = null)
+        {
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.WithColor(Color.Blue)
+                .WithCurrentTimestamp()
+                .AddField("Action:", action)
+                .AddField("User: ", user)
+                .AddField("Result: ", result);
+            BotChannel.SendMessageAsync("", false, builder.Build());
+        }
+
+        private void SendError(SocketUserMessage message, IResult result)
+        {
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.WithTitle("ERROR")
+                .AddField("Invoking message", message.Content)
+                .AddField("Invoking user", message.Author)
+                .WithDescription(result.ErrorReason)
+                .WithCurrentTimestamp()
+                .WithColor(Color.Red);
+            ErrorChannel.SendMessageAsync("", false, builder.Build());
+        }
+
+
     }
+
+    #endregion
+
 }
 
