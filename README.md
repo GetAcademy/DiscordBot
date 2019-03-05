@@ -18,9 +18,9 @@ GETsharp Discord bot readme. Dette er en bot for startIT/getIT kurs for å hjelp
 - [ ] Registrere video via kommando/evt via DM fra elev til BOT-account
 ***
 ####  Milestones
-* Basic Logging og kontakt med Discord server
-* Basic Interaktivitet
-* Basic Interakivitet gjennom DM
+* <s>Basic Logging og kontakt med Discord server</s>
+* <s>Basic Interaktivitet</s>
+* <s>Basic Interakivitet gjennom DM</s>
 * Avansert Interaktivitet i chat gjennom kommandoer med flere parametere
 * Automatiske påminnelser i general Chat
 * Automatiske påminnelser i DM (tidsbasert)
@@ -28,5 +28,6 @@ GETsharp Discord bot readme. Dette er en bot for startIT/getIT kurs for å hjelp
 *** 
 #### Additional
 - Mulighet til å "videresende" DM meldinger fra elever til en, eller flere bot master kontoer. 
-
+- Mulighet for at "Bot masters" (lagre id lokalt på bot) kan sende meldinger/kommandoer direkte til bot for f.eks. sende påminnelser, info
+- Lage en "Kanal" (DM) Hvor elever kan sende spørsmål til botten, disse videresendes til Marius & Terje som kan svare og sende tilbake en respons
 ***

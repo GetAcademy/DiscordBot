@@ -151,12 +151,13 @@ namespace MyBot
             Console.WriteLine($"UserID: {user.Id} Joined server");
             EmbedBuilder build = new EmbedBuilder
             {
-                Description = $"I kurset kommer vi til å bruke [Github](https://github.com/) til å samle koden dere lager og til hosting av nettsider når vi bygger dem.\n" +
-                              $"For å skrive koden står dere fritt til å velge IDE/teksteditor, men vi anbefaler å bruke " +
-                              $"[Visual Studio](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=15).\n" +
-                              $"Har du en eldre PC kan det være nyttig å bruke [Visual Studio Code](https://code.visualstudio.com/docs?dv=win&wt.mc_id=DX_841432&sku=codewin)\n" +
-                              $"Kurset har oppgaver og informasjon på [Moodle](https://getacademy.moodlecloud.com/)\n" +
-                              $"Informasjon og oppgaver vil også bli gitt på [Google Classroom](https://classroom.google.com/)"
+                Description =
+                      $"I kurset kommer vi til å bruke [Github](https://github.com/) til å samle koden dere lager og til hosting av nettsider når vi bygger dem.\n" +
+                      $"For å skrive koden står dere fritt til å velge IDE/teksteditor, men vi anbefaler å bruke " +
+                      $"[Visual Studio](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=15).\n" +
+                      $"Har du en eldre PC kan det være nyttig å bruke [Visual Studio Code](https://code.visualstudio.com/docs?dv=win&wt.mc_id=DX_841432&sku=codewin)\n" +
+                      $"Kurset har oppgaver og informasjon på [Moodle](https://getacademy.moodlecloud.com/)\n" +
+                      $"Informasjon og oppgaver vil også bli gitt på [Google Classroom](https://classroom.google.com/)"
             };
 
             await user.SendMessageAsync(
