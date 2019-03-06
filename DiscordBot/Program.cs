@@ -45,6 +45,7 @@ namespace MyBot
         private IServiceProvider _services;
         private static readonly string path = @"logfile.txt";
         private static readonly string _userPath = @"users.txt";
+        private static readonly string _daemonPath = @"crashHandler.exe";
         private readonly ulong _serverName = 540248332069765128;
         private readonly string _botToken = File.ReadAllLines(@"I:\GET\DiscordBot\token.txt")[0];
 
@@ -122,6 +123,7 @@ namespace MyBot
         private Task ReportMemberUpdateAsync(SocketGuildUser before, SocketGuildUser after)
         {
             // Logs and reports to BotChannel of the changes done to the guild member
+            // Currently this code also reports user status and online/offline actions!!!!!
             Console.WriteLine($"Change to user: {after.Username}\nAction: {after.Hierarchy}");
             return Task.CompletedTask;
         }
