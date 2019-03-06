@@ -44,6 +44,7 @@ namespace MyBot
         private CommandService _commands;
         private IServiceProvider _services;
         private static readonly string path = @"logfile.txt";
+        private static readonly string _userPath = @"users.txt";
         private readonly ulong _serverName = 540248332069765128;
         private readonly string _botToken = File.ReadAllLines(@"I:\GET\DiscordBot\token.txt")[0];
 
@@ -70,6 +71,14 @@ namespace MyBot
                 using (StreamWriter sw = File.CreateText(path))
                 {
                     sw.WriteLine("LOGFILE GET BOT");
+                }
+            }
+
+            if (!File.Exists(_userPath))
+            {
+                using (StreamWriter sw2 = File.CreateText(_userPath))
+                {
+                    sw2.WriteLine("Brukere som har blitt registrert\n");
                 }
             }
 
@@ -110,9 +119,10 @@ namespace MyBot
             return Task.CompletedTask;
         }
 
-        private Task ReportMemberUpdateAsync(SocketGuildUser arg1, SocketGuildUser arg2)
+        private Task ReportMemberUpdateAsync(SocketGuildUser before, SocketGuildUser after)
         {
             // Logs and reports to BotChannel of the changes done to the guild member
+            Console.WriteLine($"Change to user: {after.Username}\nAction: {after.Hierarchy}");
             return Task.CompletedTask;
         }
 
@@ -178,7 +188,21 @@ namespace MyBot
                     SendMessageBotChannel(report, "Reply", "Automatic");
                     Logging(report);
                     await msg.Author.SendMessageAsync(
-                        "Heisann! Her kommer det mer info etterhvert. Work in progress ;)");
+                        "Heisann! Her kommer det mer info etterhvert. Work in progress ;)"
+                        );
+                } else if (msg.Content.Split(' ').Contains("!navn"))
+                {
+                    var message = msg.Content.Split(' ');
+                    var firstName = message[1];
+                    var lastName = message[2];
+                    var id = msg.Author.Id;
+                    var username = msg.Author.Username;
+                    using (StreamWriter sw2 = File.AppendText(_userPath))
+                    {
+                        sw2.WriteLine($"{lastName}\t{firstName}\t{id}\t{username}");
+                    }
+
+                    msg.Author.SendMessageAsync("Flott! Nå er du registrert!");
                 }
                 else
                 {
@@ -237,7 +261,8 @@ namespace MyBot
                 $"\t{_client.GetUser(268754579988938752).Mention} Lærer i IT-utvikling\n" +
                 $"\t{_client.GetUser(363256000800751616).Mention} Lærer i Nøkkelkompetanse\n" +
                 $"\t{_client.GetUser(112955646701297664).Mention} Hjelpelærer/Discord ansvarlig\n\n" +
-                $"Ønsker du mer informasjon fra meg så kan du svare på denne meldingen ved å skrive \"!info\", eller tagge meg og gi kommandoen \"help\" i General."
+                $"Ønsker du mer informasjon fra meg så kan du svare på denne meldingen ved å skrive \"!info\", eller tagge meg og gi kommandoen \"help\" i General.\n\n" +
+                $"Du må nå svare på denne meldingen ved å skrive [!navn \"Fornavnet ditt\" \"Etternavn\"] for å bli registrert for meg! :) eksempel: \"!navn Navn Navnesen\""
                 , false, build.Build());
 
             await channel.SendMessageAsync($"Velkommen til General, {user.Mention}!");
@@ -284,7 +309,7 @@ namespace MyBot
         {
             var message = arg as SocketUserMessage;
             Logging(arg.ToString());
-            if (message is null || message.Author.IsBot) return;
+            if (message is null || message.Author.IsBot || message.Channel.Name != "general") return;
             var argPos = 0;
             if (message.HasStringPrefix("bot!", ref argPos) ||
                 message.HasMentionPrefix(_client.CurrentUser, ref argPos))
