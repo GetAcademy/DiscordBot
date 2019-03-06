@@ -83,7 +83,6 @@ namespace MyBot
                 .BuildServiceProvider();
 
             #region client Event handler subscriptions
-
             _client.Log += Log; // Adds the local Log() Event handler to the client.
             _client.UserJoined += AnnounceUserJoined; //Add event handler to client.
             _client.MessageDeleted += MessageDeleted;
@@ -91,7 +90,7 @@ namespace MyBot
             _client.MessageReceived += ReplyUserDmAsync;
             _client.UserLeft += HandleUserLeaveAsync;
             _client.GuildMemberUpdated += ReportMemberUpdateAsync;
-            
+            _client.UserVoiceStateUpdated += HandleUserVoiceActionAsync;
 
             #endregion
 
@@ -104,6 +103,13 @@ namespace MyBot
 
 
         #region Tasks
+
+        private Task HandleUserVoiceActionAsync(SocketUser user, SocketVoiceState before, SocketVoiceState after)
+        {
+            Console.WriteLine($"User {user.Username} {user.Id}\nMoved from: {before.VoiceChannel.Name}\nMoved to: {after.VoiceChannel.Name}");
+            return Task.CompletedTask;
+        }
+
         private Task ReportMemberUpdateAsync(SocketGuildUser arg1, SocketGuildUser arg2)
         {
             // Logs and reports to BotChannel of the changes done to the guild member
