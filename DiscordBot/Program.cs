@@ -60,7 +60,7 @@ namespace MyBot
         public static SocketVoiceChannel StartItGeneralVoiceChannel;
         #endregion
         
-        public static SocketGuild _guild;
+        public static SocketGuild Guild;
 
         public async Task RunBotAsync()
         {
@@ -123,7 +123,7 @@ namespace MyBot
             Team2TextChannel = _client.GetGuild(_serverName).GetTextChannel(_team2);
             Team2VoiceChannel = _client.GetGuild(_serverName).GetVoiceChannel(_team2Voice);
 
-            _guild = _client.GetGuild(_serverName);
+            Guild = _client.GetGuild(_serverName);
             BotChannel.SendMessageAsync("GETsharp Bot is running!");
             return Task.CompletedTask;
         }
@@ -141,7 +141,7 @@ namespace MyBot
                 var role = "";
                 Logging($"Message recieved from: {msg.Author.Username} id: {msg.Author.Id}\nContent: {msg.Content}");
                 Console.WriteLine("Revieved DM from: " + msg.Channel.Name);
-                IReadOnlyCollection<SocketRole> userRoles = _guild.GetUser(msg.Author.Id).Roles;
+                IReadOnlyCollection<SocketRole> userRoles = Guild.GetUser(msg.Author.Id).Roles;
                 //The roles "ADMIN", "TEACHER" and "STUDENT" must be EXCLUSIVE!!!
                 if (userRoles.Count > 0)
                 {

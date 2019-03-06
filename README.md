@@ -30,4 +30,5 @@ GETsharp Discord bot readme. Dette er en bot for startIT/getIT kurs for å hjelp
 - Mulighet til å "videresende" DM meldinger fra elever til en, eller flere bot master kontoer. 
 - Mulighet for at "Bot masters" (lagre id lokalt på bot) kan sende meldinger/kommandoer direkte til bot for f.eks. sende påminnelser, info
 - Lage en "Kanal" (DM) Hvor elever kan sende spørsmål til botten, disse videresendes til Marius & Terje som kan svare og sende tilbake en respons
+- Når en elev blir med på serveren, vil eleven få beskjed om å svare på meldingen med navnet sitt. Dermed kan botten registrere brukerens discord ID for å binde det opp mot data i elevoversikt. Dette vil forenkle oppmøte og videoregistrering.
 ***
