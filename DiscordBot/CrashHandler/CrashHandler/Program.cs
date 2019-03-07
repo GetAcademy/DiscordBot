@@ -32,6 +32,7 @@ namespace CrashHandler
             _client.Log += Log;
 
             _client.UserUpdated += BotActivity;
+            AppDomain.
 
             await RegisterCommandsAsync();
 

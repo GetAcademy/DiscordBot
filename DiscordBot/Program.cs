@@ -34,6 +34,64 @@ namespace MyBot
         private readonly ulong _team2 = 552166088646066189;
         #endregion
 
+        #region GET_Server
+
+            public static SocketGuild GetServer;
+            public static SocketTextChannel GetServerGeneralChannel;
+            private readonly ulong _GET_server = 349263724856737792;
+            private readonly ulong _GET_general = 491966014142021633;
+
+            #region startIT4
+
+                private readonly ulong _startIT4_Category = 537930722393194504;
+                private readonly ulong _startIT4_general = 538289968007610379;
+                private readonly ulong _startIT4_general_voice = 538290021153767451;
+
+                private readonly ulong _startIT4_team1 = 539895437147111425;
+                private readonly ulong _startIT4_team2 = 542680345850544128;
+                private readonly ulong _startIT4_team3 = 539895590104858635;
+                private readonly ulong _startIT4_team4 = 539895614419369994;
+                private readonly ulong _startIT4_team5 = 549911410382209035;
+                private readonly ulong _startIT4_team6 = 550637555360595988;
+
+                private readonly ulong _startIT4_team1_voice = 539895757289816074;
+                private readonly ulong _startIT4_team2_voice = 539896033631797248;
+                private readonly ulong _startIT4_team3_voice = 539896053231648771;
+                private readonly ulong _startIT4_team4_voice = 539896078057603074;
+                private readonly ulong _startIT4_team5_voice = 539896102787219456;
+                private readonly ulong _startIT4_team6_voice = 550613975067262977;
+
+                public static SocketCategoryChannel StartIt4CategoryChannel;
+                public static SocketTextChannel StartIt4GeneralTextChannel;
+                public static SocketVoiceChannel StartIt4GeneralVoiceChannel;
+
+                public static SocketTextChannel StartIt4Team1TextChannel;
+                public static SocketTextChannel StartIt4Team2TextChannel;
+                public static SocketTextChannel StartIt4Team3TextChannel;
+                public static SocketTextChannel StartIt4Team4TextChannel;
+                public static SocketTextChannel StartIt4Team5TextChannel;
+                public static SocketTextChannel StartIt4Team6TextChannel;
+
+                public static SocketVoiceChannel StartIt4Team1VoiceChannel;
+                public static SocketVoiceChannel StartIt4Team2VoiceChannel;
+                public static SocketVoiceChannel StartIt4Team3VoiceChannel;
+                public static SocketVoiceChannel StartIt4Team4VoiceChannel;
+                public static SocketVoiceChannel StartIt4Team5VoiceChannel;
+                public static SocketVoiceChannel StartIt4Team6VoiceChannel;
+
+
+            #endregion
+
+            #region startIT5
+
+            
+
+            #endregion
+
+        #endregion
+
+
+
         #region voice channels //REPLACE WITH NEW VALUES
         private readonly ulong _generalVoice = 552166007767171083;
         private readonly ulong _team1Voice = 552166126403190795;
@@ -94,7 +152,7 @@ namespace MyBot
 
             #region client Event handler subscriptions
             _client.Log += Log; // Adds the local Log() Event handler to the client.
-            _client.UserJoined += AnnounceUserJoined; //Add event handler to client.
+            //_client.UserJoined += AnnounceUserJoined; //Add event handler to client.
             _client.MessageDeleted += MessageDeleted;
             _client.Ready += ReadyAsync;
             _client.MessageReceived += ReplyUserDmAsync;
@@ -130,6 +188,7 @@ namespace MyBot
 
         private Task ReadyAsync()
         {
+            #region Testing Server
             GeneralChannel = _client.GetGuild(_serverName).GetTextChannel(_general);
             BotChannel = _client.GetGuild(_serverName).GetTextChannel(_bot);
             ErrorChannel = _client.GetGuild(_serverName).GetTextChannel(_errors);
@@ -141,7 +200,32 @@ namespace MyBot
             Team2TextChannel = _client.GetGuild(_serverName).GetTextChannel(_team2);
             Team2VoiceChannel = _client.GetGuild(_serverName).GetVoiceChannel(_team2Voice);
 
-            Guild = _client.GetGuild(_serverName);
+            Guild = _client.GetGuild(_serverName); //Server object
+            #endregion
+
+            #region MyRegion
+
+            GetServer = _client.GetGuild(_GET_server); // GET server
+            GetServerGeneralChannel = GetServer.GetTextChannel(_GET_general); // General text channel
+
+            StartIt4Team1TextChannel = GetServer.GetTextChannel(_startIT4_team1);
+            StartIt4Team2TextChannel = GetServer.GetTextChannel(_startIT4_team2);
+            StartIt4Team3TextChannel = GetServer.GetTextChannel(_startIT4_team3);
+            StartIt4Team4TextChannel = GetServer.GetTextChannel(_startIT4_team4);
+            StartIt4Team5TextChannel = GetServer.GetTextChannel(_startIT4_team5);
+            StartIt4Team6TextChannel = GetServer.GetTextChannel(_startIT4_team6);
+
+            StartIt4Team1VoiceChannel = GetServer.GetVoiceChannel(_startIT4_team1_voice);
+            StartIt4Team2VoiceChannel = GetServer.GetVoiceChannel(_startIT4_team2_voice);
+            StartIt4Team3VoiceChannel = GetServer.GetVoiceChannel(_startIT4_team3_voice);
+            StartIt4Team4VoiceChannel = GetServer.GetVoiceChannel(_startIT4_team4_voice);
+            StartIt4Team5VoiceChannel = GetServer.GetVoiceChannel(_startIT4_team5_voice);
+            StartIt4Team6VoiceChannel = GetServer.GetVoiceChannel(_startIT4_team6_voice);
+
+
+            #endregion
+
+
             BotChannel.SendMessageAsync("GETsharp Bot is running!");
             return Task.CompletedTask;
         }
