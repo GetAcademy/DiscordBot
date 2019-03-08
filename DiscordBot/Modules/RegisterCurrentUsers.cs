@@ -34,7 +34,7 @@ namespace MyBot.Modules
                 {
                     currentUsers.Add(user);
                     userIds.Add(user.Id);
-                    _message += $"User: {user.Username} Nick: {user.Nickname} id: {user.Id} in channel: {user.VoiceChannel} \n";
+                    _message += $"{user.Id} \t\tChannel: {user.VoiceChannel} \tUser: {user.Username} \tNick: {user.Nickname} \n";
                 }
             }
 

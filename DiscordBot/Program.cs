@@ -152,12 +152,12 @@ namespace MyBot
 
             #region client Event handler subscriptions
             _client.Log += Log; // Adds the local Log() Event handler to the client.
-            //_client.UserJoined += AnnounceUserJoined; //Add event handler to client.
+            _client.UserJoined += AnnounceUserJoined; //Add event handler to client.
             _client.MessageDeleted += MessageDeleted;
             _client.Ready += ReadyAsync;
             _client.MessageReceived += ReplyUserDmAsync;
             _client.UserLeft += HandleUserLeaveAsync;
-            _client.GuildMemberUpdated += ReportMemberUpdateAsync;
+            //_client.GuildMemberUpdated += ReportMemberUpdateAsync;
             _client.UserVoiceStateUpdated += HandleUserVoiceActionAsync;
 
             #endregion
@@ -285,10 +285,10 @@ namespace MyBot
                     var username = msg.Author.Username;
                     using (StreamWriter sw2 = File.AppendText(_userPath))
                     {
-                        sw2.WriteLine($"{lastName}\t{firstName}\t{id}\t{username}");
+                        sw2.WriteLine($"{id},{lastName},{firstName},{username}");
                     }
 
-                    msg.Author.SendMessageAsync("Flott! Nå er du registrert!");
+                    await msg.Author.SendMessageAsync("Flott! Nå er du registrert!");
                 }
                 else
                 {

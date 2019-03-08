@@ -4,14 +4,12 @@
 *.ide
 *.ide-shm
 *.ide-wal
-*.sln
 *.user
 *.config
 *.dll
 *.pdb
 *.xml
 *.exe
-*.csproj
 *.cache
 *.CopyComplete
 DiscordBot/obj/Debug/DiscordBot.csproj.FileListAbsolute.txt
