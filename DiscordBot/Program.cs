@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using MyBot.Modules;
 using LogMessage = Discord.LogMessage;
 
 
@@ -104,6 +105,7 @@ namespace MyBot
         private static readonly string path = @"logfile.txt";
         private static readonly string _userPath = @"users.txt";
         private static readonly string _daemonPath = @"crashHandler.exe";
+        public static List<Question> ActiveQuestions = new List<Question>();
         private readonly ulong _serverName = 540248332069765128;
         private readonly string _botToken = File.ReadAllLines(@"I:\GET\DiscordBot\token.txt")[0];
 
@@ -238,11 +240,16 @@ namespace MyBot
 
         private async Task ReplyUserDmAsync(SocketMessage msg)
         {
-            if (msg.Channel.Name != "general" && !msg.Author.IsBot) //Message is DM
+            //Console.WriteLine(msg.Channel.Name);
+            var name = String.Copy(msg.Channel.Name);
+            name = name.Substring(1, name.Length - 6);
+            //Console.WriteLine($"{msg.Author.Username} == {name}");
+            if (msg.Author.Username == name && !msg.Author.IsBot) //Message is DM
             {
                 var role = "";
                 Logging($"Message recieved from: {msg.Author.Username} id: {msg.Author.Id}\nContent: {msg.Content}");
                 Console.WriteLine("Revieved DM from: " + msg.Channel.Name);
+                
                 IReadOnlyCollection<SocketRole> userRoles = Guild.GetUser(msg.Author.Id).Roles;
                 //The roles "ADMIN", "TEACHER" and "STUDENT" must be EXCLUSIVE!!!
                 if (userRoles.Count > 0)
@@ -250,20 +257,32 @@ namespace MyBot
                     //Console.WriteLine("User has roles!");
                     foreach (var userRole in userRoles)
                     {
-                        //Console.WriteLine(userRole.Name);
+                        
                         switch (userRole.Name.ToString())
                         {
-                            case "ADMIN":
-                                Console.WriteLine("ADMIN ACC");
-                                role = "ADMIN ";
-                                break;
+                            
+                            //if student, Create a question object
                             case "STUDENT":
-                                Console.WriteLine("STUDENT ACC");
-                                role = "STUDENT";
+                                SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
+                                var q = new Question("testspørsmål", "null");
+                                Console.WriteLine("Made object");
+                                q.WriteToFile();
+                                ActiveQuestions.Add(q);
                                 break;
+
+                            // if Admin this may be a command to the bot
+                            case "ADMIN":
+                                SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
+                                break;
+
+                            // if Teacher this message may be a broadcast to students
                             case "TEACHER":
-                                Console.WriteLine("TEACHER ACC");
-                                role = "TEACHER";
+                                SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
+                                break;
+
+                            default:
+                                SendMessageBotChannel("Unknown user replying to bot", "LOG", "Server");
+                                Logging($"Unregistered user {msg.Author.Username} attempring to communicate with bot: \n{msg.Content}");
                                 break;
                         }
                     }
@@ -289,27 +308,6 @@ namespace MyBot
                     }
 
                     await msg.Author.SendMessageAsync("Flott! Nå er du registrert!");
-                }
-                else
-                {
-                    switch (role)
-                    {
-                        //if student, forward to teachers
-                        case "STUDENT":
-                            break;
-
-                        // if Admin this may be a command to the bot
-                        case "ADMIN":
-                            break;
-
-                        // if Teacher this message may be a broadcast to students
-                        case "TEACHER":
-                            break;
-                        default:
-                            SendMessageBotChannel("Unknown user replying to bot", "LOG", "Server");
-                            Logging($"Unregistered user {msg.Author.Username} attempring to communicate with bot: \n{msg.Content}");
-                            break;
-                    }
                 }
             }
         }
