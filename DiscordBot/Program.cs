@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using MyBot.Modules;
@@ -102,12 +103,20 @@ namespace MyBot
         private DiscordSocketClient _client;
         private CommandService _commands;
         private IServiceProvider _services;
+
+        #region Fields
+
+        private Timer timer;
+
         private static readonly string path = @"logfile.txt";
         private static readonly string _userPath = @"users.txt";
         private static readonly string _daemonPath = @"crashHandler.exe";
         public static List<Question> ActiveQuestions = new List<Question>();
         private readonly ulong _serverName = 540248332069765128;
         private readonly string _botToken = File.ReadAllLines(@"I:\GET\DiscordBot\token.txt")[0];
+
+
+        #endregion
 
         #region channel objects
         public static SocketTextChannel GeneralChannel;
@@ -142,6 +151,22 @@ namespace MyBot
                     sw2.WriteLine("Brukere som har blitt registrert\n");
                 }
             }
+            timer = new Timer(AnnounceFridayReminder);
+
+            // Figure how much time until 12:00
+            DateTime now = DateTime.Now;
+            DateTime twelveOClock = DateTime.Today.AddHours(12.0);
+
+            // If it's already past 12:00    
+            if (now > twelveOClock)
+            {
+                twelveOClock = twelveOClock.AddDays(1.0);
+            }
+
+            int msUntilFour = (int)((twelveOClock - now).TotalMilliseconds);
+
+            // Set the timer to once per day.
+            timer.Change(msUntilFour, 86400000);
 
             ActiveQuestions = LoadData.ReadQuestions(); //Load all stored questions into memory
             Logging("\n\nGETsharp Bot startup");
@@ -172,6 +197,11 @@ namespace MyBot
             await Task.Delay(-1);
         }
 
+        private void AnnounceFridayReminder(object state)
+        {
+            GeneralChannel.SendMessageAsync("I'm triggered by a timer! at 12:40");
+        }
+
 
         #region Tasks
 
@@ -188,6 +218,7 @@ namespace MyBot
             Console.WriteLine($"Change to user: {after.Username}\nAction: {after.Hierarchy}");
             return Task.CompletedTask;
         }
+
 
         private Task ReadyAsync()
         {
