@@ -143,6 +143,7 @@ namespace MyBot
                 }
             }
 
+            ActiveQuestions = LoadData.ReadQuestions(); //Load all stored questions into memory
             Logging("\n\nGETsharp Bot startup");
 
             _client = new DiscordSocketClient();
@@ -264,10 +265,22 @@ namespace MyBot
                             //if student, Create a question object
                             case "STUDENT":
                                 SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
-                                var q = new Question("testspørsmål", "null");
-                                Console.WriteLine("Made object");
-                                q.WriteToFile();
-                                ActiveQuestions.Add(q);
+                                if (msg.Content.Contains("!question"))
+                                {
+                                    var q = CreateQuestion(msg);
+                                    //var q = new Question(msg.Content, "null");
+                                    Console.WriteLine("Made object");
+                                    q.WriteToFile();
+                                    ActiveQuestions.Add(q);
+                                }
+                                else
+                                {
+                                    await msg.Author.SendMessageAsync("Heisann! Hvis du har ett spørsmål til oss, svar med " +
+                                                                "!question \"[Spørsmålet ditt] | [Hvordan vi kan gjenskape problemet]\"" +
+                                                                "\n __**eksempel:**__ \n!question Hvordan sender jeg kommandoer til botten | Prøver å sende en kommando, men det skjer ingen ting\n" +
+                                                                "**!NB!** Husk å ha med \"|\" mellom hver del av spørsmålet du skal sende! ;)");
+                                }
+                                
                                 break;
 
                             // if Admin this may be a command to the bot
@@ -297,7 +310,7 @@ namespace MyBot
                         );
                 } else if (msg.Content.Split(' ').Contains("!navn"))
                 {
-                    var message = msg.Content.Split(' ');
+                    var message = msg.Content.Split(',');
                     var firstName = message[1];
                     var lastName = message[2];
                     var id = msg.Author.Id;
@@ -310,6 +323,22 @@ namespace MyBot
                     await msg.Author.SendMessageAsync("Flott! Nå er du registrert!");
                 }
             }
+        }
+
+        private Question CreateQuestion(SocketMessage msg)
+        {
+            var values = msg.Content.Split('|');
+            var content = values[0] == "!question" ?  values[1] : values[0];
+            var howTo = values[0] == "!question" ?  values[2] : values[1];
+            msg.Author.SendMessageAsync("Takk! Da har jeg registrert spørsmålet!");
+            EmbedBuilder builder = new EmbedBuilder
+            {
+                Title = "Spørsmål",
+                Color = Color.DarkTeal,
+                Description = content + "\n" + howTo,
+            };
+            msg.Author.SendMessageAsync("", false, builder.Build());
+            return new Question(msg.Author.Id, content.Substring(9), howTo);   
         }
 
         private Task MessageDeleted(Cacheable<IMessage, ulong> arg1, ISocketMessageChannel arg2)

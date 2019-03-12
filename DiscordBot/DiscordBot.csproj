@@ -151,7 +151,8 @@
     <Compile Include="Modules\Log.cs" />
     <Compile Include="Modules\Ping.cs" />
     <Compile Include="Modules\PM.cs" />
-    <Compile Include="Modules\Question.cs" />
+    <Compile Include="Objects\LoadData.cs" />
+    <Compile Include="Objects\Question.cs" />
     <Compile Include="Modules\RegisterCurrentUsers.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
