@@ -11,6 +11,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{C773C108-D17D-4394-934E-0FA4B81561E1}"
+	ProjectSection(SolutionItems) = preProject
+		DiscordBot\Templates\basic.html = DiscordBot\Templates\basic.html
+		DiscordBot\Templates\class.js = DiscordBot\Templates\class.js
+		DiscordBot\Templates\empty.css = DiscordBot\Templates\empty.css
+		DiscordBot\Templates\empty.html = DiscordBot\Templates\empty.html
+		DiscordBot\Templates\empty.js = DiscordBot\Templates\empty.js
+		DiscordBot\Templates\full.html = DiscordBot\Templates\full.html
+		DiscordBot\Templates\linked\linked.rar = DiscordBot\Templates\linked\linked.rar
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +35,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C773C108-D17D-4394-934E-0FA4B81561E1} = {34D48E61-90A3-4E91-902A-8EFEC93CA1FD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {671D1D04-C4D1-4323-AF45-4AC4BDB4D7E9}

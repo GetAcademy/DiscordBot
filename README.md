@@ -32,6 +32,8 @@ GETsharp Discord bot readme. Dette er en bot for startIT/getIT kurs for å hjelp
 - Lage en "Kanal" (DM) Hvor elever kan sende spørsmål til botten, disse videresendes til Marius & Terje som kan svare og sende tilbake en respons
 - Når en elev blir med på serveren, vil eleven få beskjed om å svare på meldingen med navnet sitt. Dermed kan botten registrere brukerens discord ID for å binde det opp mot data i elevoversikt. Dette vil forenkle oppmøte og videoregistrering.
 - Registrering av brukere kan skje ved at en admin starter en kommando, f.eks. @GET RegisterCurrentUsers. Denne vil da først få en oversikt over alle brukere på serveren, for så gå igjennom dem en av gangen og sjekke om \<SocketGuildUser\> user.VoiceChannel ikke er "null" og er en av serverens registrerte kanaler. 
+- Lagt til mulighet for at studenter kan sende spørsmål til Bot som registreres og lagres.
+- Lagt til broadcast melding. DM til elever fra en lærer
 ***
 #### How to
 ***

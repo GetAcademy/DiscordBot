@@ -290,7 +290,7 @@ namespace MyBot
                     //Console.WriteLine("User has roles!");
                     foreach (var userRole in userRoles)
                     {
-                        if (done) continue;
+                        //if (done) continue;
                         switch (userRole.Name.ToString())
                         {
                             
@@ -313,13 +313,13 @@ namespace MyBot
                                                                 "**!NB!** Husk å ha med \"|\" mellom hver del av spørsmålet du skal sende! ;)");
                                 }
 
-                                done = true;
+                                //done = true;
                                 break;
 
                             // if Admin this may be a command to the bot
                             case "ADMIN":
                                 SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
-                                done = true;
+                                //done = true;
                                 break;
 
                             // if Teacher this message may be a broadcast to students
@@ -327,27 +327,34 @@ namespace MyBot
                                 SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
                                 if (msg.Content.Contains("?Q"))
                                 {
-                                    foreach (var question in ActiveQuestions)
+                                    if (ActiveQuestions.Any(question => !question.Solved))
                                     {
-                                        if (!question.Solved)
+                                        foreach (var question in ActiveQuestions)
                                         {
-                                            var builder = new EmbedBuilder
+                                            if (!question.Solved)
                                             {
-                                                Color = Color.Green,
-                                                Description = question.Content + "\n" + question.HowToRepeat
-                                            };
-                                            builder.AddField("Brukernavn: ",
-                                                    GetServer.GetUser(question.UserId).Username)
-                                                .AddField("Spørsmål ID", question.Id)
-                                                .AddField("Dato", question.Time)
-                                                .AddField("Svar på spørsmålet ved å skrive:", "?SOLVE [Spørsmål ID]");
-                                            Console.WriteLine($"Sent question to: {msg.Author.Username}");
-                                            await msg.Author.SendMessageAsync("", false, builder.Build());
-                                            break;
+                                                var builder = new EmbedBuilder
+                                                {
+                                                    Color = Color.Green,
+                                                    Description = question.Content + "\n" + question.HowToRepeat
+                                                };
+                                                builder.AddField("Brukernavn: ",
+                                                        GetServer.GetUser(question.UserId).Username)
+                                                    .AddField("Spørsmål ID", question.Id)
+                                                    .AddField("Dato", question.Time)
+                                                    .AddField("Svar på spørsmålet ved å skrive:",
+                                                        $"?SOLVE {question.Id}");
+                                                Console.WriteLine($"Sent question to: {msg.Author.Username}");
+                                                await msg.Author.SendMessageAsync("", false, builder.Build());
+                                                break;
+                                            }
                                         }
-
+                                    }
+                                    else
+                                    {
                                         await msg.Author.SendMessageAsync(
                                             "Det ser ut til at det er ingen flere aktive spørsmål! :)");
+
                                     }
                                 }
                                 else if (msg.Content.Contains("?questions"))
@@ -396,7 +403,7 @@ namespace MyBot
                                         "Hvis du vil sende en melding til alle registrerte studentder, svar med !BROADCAST [Melding]");
                                 }
 
-                                done = true;
+                                //done = true;
                                 break;
 
                             

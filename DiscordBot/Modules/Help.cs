@@ -20,6 +20,9 @@ namespace MyBot.Modules
                                 "Use: @GET PM [UserID/\"Username\"] <message>")
                 .AddField("Invite", "Sends a server invite link as pm. If no user id is given, the bot will post in general (ADMIN)\n" +
                                     "Use: @GET Invite [UserID]")
+                .AddField("Boilerplate", "Sends a boilerplate file back to the user as dm\n" +
+                                         "Usage: @GET Boilerplate [lang] attributes\n" +
+                                         "Example: @GET Boilerplate HTML -L //Sends a linked set of files (html, css and js as .rar file)")
                 .WithColor(Color.Red)
                 .WithImageUrl("https://i.chzbgr.com/full/8332814592/h5D460AE7/");
 

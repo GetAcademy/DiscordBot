@@ -144,6 +144,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Modules\Boilerplate.cs" />
     <Compile Include="Modules\Echo.cs" />
     <Compile Include="Modules\Help.cs" />
     <Compile Include="Modules\Invite.cs" />
