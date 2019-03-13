@@ -284,12 +284,13 @@ namespace MyBot
                 
                 IReadOnlyCollection<SocketRole> userRoles = Guild.GetUser(msg.Author.Id).Roles;
                 //The roles "ADMIN", "TEACHER" and "STUDENT" must be EXCLUSIVE!!!
+                var done = false;
                 if (userRoles.Count > 0)
                 {
                     //Console.WriteLine("User has roles!");
                     foreach (var userRole in userRoles)
                     {
-                        
+                        if (done) continue;
                         switch (userRole.Name.ToString())
                         {
                             
@@ -311,12 +312,14 @@ namespace MyBot
                                                                 "\n __**eksempel:**__ \n!question Hvordan sender jeg kommandoer til botten | Prøver å sende en kommando, men det skjer ingen ting\n" +
                                                                 "**!NB!** Husk å ha med \"|\" mellom hver del av spørsmålet du skal sende! ;)");
                                 }
-                                
+
+                                done = true;
                                 break;
 
                             // if Admin this may be a command to the bot
                             case "ADMIN":
                                 SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
+                                done = true;
                                 break;
 
                             // if Teacher this message may be a broadcast to students
@@ -373,11 +376,27 @@ namespace MyBot
                                         q.WriteToFile();
                                     }
                                 }
+                                else if(msg.Content.Contains("!BROADCAST"))
+                                {
+                                    var message = msg.Content.Substring(10);
+                                    foreach (var user in Guild.Users)
+                                    {
+                                        if (user.Roles.Any(r => r.ToString() == "STUDENT"))
+                                        {
+                                            await user.SendMessageAsync($"Dette er en broadcast melding fra {msg.Author.Username}\n" + message);
+                                        }
+                                    }
+                                }
                                 else
                                 {
                                     await msg.Author.SendMessageAsync(
-                                        "Heisann! Jeg forsto ikke helt den kommandoen... Hvis du vil ha en oversikt over aktive spørsmål, send ?questions, hvis du vil at jeg skal sende deg ett spørsmål, svar med ?Q");
+                                        "Heisann! Jeg forsto ikke helt den kommandoen... \n" +
+                                        "Hvis du vil ha en oversikt over aktive spørsmål, send ?questions\n" +
+                                        "Hvis du vil at jeg skal sende deg ett spørsmål, svar med ?Q\n" +
+                                        "Hvis du vil sende en melding til alle registrerte studentder, svar med !BROADCAST [Melding]");
                                 }
+
+                                done = true;
                                 break;
 
                             
@@ -558,8 +577,6 @@ namespace MyBot
                 .WithColor(Color.Red);
             ErrorChannel.SendMessageAsync("", false, builder.Build());
         }
-
-
     }
 
     #endregion

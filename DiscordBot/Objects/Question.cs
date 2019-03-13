@@ -34,14 +34,7 @@ namespace MyBot.Modules
                 Time = time;
             }
 
-            if (id == 0)
-            {
-                Id = _rng.Next(100000000, 999999999);
-            }
-            else
-            {
-                Id = id;
-            }
+            Id = id == 0 ? _rng.Next(100000000, 999999999) : id;
 
         }
 
