@@ -12,6 +12,7 @@ namespace MyBot.Modules
         [Alias("pm", "Pm", "pM")]
         public async Task PmAsync(string user, [Remainder] string args)
         {
+            await Context.Channel.DeleteMessageAsync(Context.Message.Id);
             if (!ulong.TryParse(user, out var recipient))
             {
                 foreach (var usr in Context.Guild.Users)

@@ -9,6 +9,7 @@ namespace MyBot.Modules
         [Command("Links")]
         public async Task LinksAsync()
         {
+            await Context.Channel.DeleteMessageAsync(Context.Message.Id);
             EmbedBuilder builder = new EmbedBuilder
             {
                 Title = "LINKS!",

@@ -144,8 +144,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Modules\AllQuestions.cs" />
     <Compile Include="Modules\Boilerplate.cs" />
+    <Compile Include="Modules\DeleteMessage.cs" />
     <Compile Include="Modules\Echo.cs" />
+    <Compile Include="Modules\Fetch.cs" />
     <Compile Include="Modules\Help.cs" />
     <Compile Include="Modules\Invite.cs" />
     <Compile Include="Modules\Links.cs" />

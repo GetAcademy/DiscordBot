@@ -10,6 +10,7 @@ namespace MyBot.Modules
         [Alias("help", "HELP", "?")]
         public async Task HelpAsync()
         {
+            await Context.Channel.DeleteMessageAsync(Context.Message.Id);
             EmbedBuilder builder = new EmbedBuilder();
             builder.AddField("Ping", "Pong!")
                 .AddField("HowTo", "Invoke the bot by using the command bot!<command> or by tagging the bot and a command.")

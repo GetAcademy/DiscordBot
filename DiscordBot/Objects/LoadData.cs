@@ -14,6 +14,7 @@ namespace MyBot.Modules
 
         public static List<Question> ReadQuestions()
         {
+            Console.WriteLine("Existing Question Loaded");
             if (!File.Exists(_filename))
             {
                 File.CreateText(_filename);
@@ -21,7 +22,7 @@ namespace MyBot.Modules
             List<Question> questions = new List<Question>();
             foreach (var line in File.ReadAllLines(_filename))
             {
-                Console.WriteLine("new line! " + line);
+                
                 var values = line.Split(',');
                 if (values.Length < 5)
                 {
@@ -33,8 +34,8 @@ namespace MyBot.Modules
                 long.TryParse(values[0], out var id);
                 bool.TryParse(values[3], out var solved);
                 ulong.TryParse(values[5], out var userId);
-                
-                questions.Add(new Question(userId, content, howToRepeat, id, time, solved));
+                ulong.TryParse(values[6], out var assigned);
+                questions.Add(new Question(userId, content, howToRepeat, id, time, solved, assigned));
             }
             return questions;
         }

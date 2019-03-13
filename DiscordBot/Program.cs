@@ -199,7 +199,7 @@ namespace MyBot
 
         private void AnnounceFridayReminder(object state)
         {
-            GeneralChannel.SendMessageAsync("I'm triggered by a timer! at 12:40");
+            GeneralChannel.SendMessageAsync("Klokken er nå 12:00");
         }
 
 
@@ -329,9 +329,15 @@ namespace MyBot
                                 {
                                     if (ActiveQuestions.Any(question => !question.Solved))
                                     {
+                                        if (ActiveQuestions.Any(question => (question.AssignedTo != 0)))
+                                        {
+                                            await msg.Author.SendMessageAsync(
+                                                "All active questions have been assigned to a teacher");
+                                            break;
+                                        }
                                         foreach (var question in ActiveQuestions)
                                         {
-                                            if (!question.Solved)
+                                            if (!question.Solved && question.AssignedTo == ulong.MinValue)
                                             {
                                                 var builder = new EmbedBuilder
                                                 {
@@ -345,6 +351,8 @@ namespace MyBot
                                                     .AddField("Svar på spørsmålet ved å skrive:",
                                                         $"?SOLVE {question.Id}");
                                                 Console.WriteLine($"Sent question to: {msg.Author.Username}");
+                                                question.AssignedTo = msg.Author.Id;
+                                                question.WriteToFile();
                                                 await msg.Author.SendMessageAsync("", false, builder.Build());
                                                 break;
                                             }

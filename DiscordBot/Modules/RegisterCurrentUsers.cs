@@ -16,16 +16,13 @@ namespace MyBot.Modules
         [Alias("RCU", "RegisterUsers")]
         public async Task RegisterCurrentUsersAsync()
         {
+            await Context.Channel.DeleteMessageAsync(Context.Message.Id);
             var today = DateTime.Now.ToString("dd/MM/yyyy");
             _path = @"userRegistration_" + today + ".txt";
-            //if (!File.Exists(_path))
-            //{
-                // Create a file to write to.
-                using (StreamWriter sw = File.CreateText(_path))
-                {
-                    sw.WriteLine("User registration " + today);
-                }
-            //}
+            using (StreamWriter sw = File.CreateText(_path))
+            {
+                sw.WriteLine("User registration " + today);
+            }
             List<SocketUser> currentUsers = new List<SocketUser>();
             List<ulong> userIds = new List<ulong>();
             foreach (var user in MyBot.Program.GetServer.Users)
@@ -34,7 +31,7 @@ namespace MyBot.Modules
                 {
                     currentUsers.Add(user);
                     userIds.Add(user.Id);
-                    _message += $"{user.Id} \t\tChannel: {user.VoiceChannel} \tUser: {user.Username} \tNick: {user.Nickname} \n";
+                    _message += $"{user.Id} \t\tChannel: {user.VoiceChannel} \tUser: {user.Username} \t\t\tNick: {user.Nickname} \n";
                 }
             }
 

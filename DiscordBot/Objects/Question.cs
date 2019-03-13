@@ -13,7 +13,7 @@ namespace MyBot.Modules
         public string HowToRepeat;
         public readonly string Time = DateTime.Now.ToLongDateString();
         private readonly Random _rng = new Random();
-
+        public ulong AssignedTo;
         public ulong UserId;
         //private readonly string _idPath = @"questionIDs.txt";
         private readonly string _questionPath = @"questions.csv";
@@ -23,7 +23,7 @@ namespace MyBot.Modules
         public bool Solved;
 
 
-        public Question(ulong userId, string content, string howToRepeat, long id = 0, string time = null, bool solved=false)
+        public Question(ulong userId, string content, string howToRepeat, long id = 0, string time = null, bool solved=false, ulong assigned = ulong.MinValue)
         {
             UserId = userId;
             Content = content;
@@ -33,6 +33,9 @@ namespace MyBot.Modules
             {
                 Time = time;
             }
+
+            AssignedTo = assigned;
+            
 
             Id = id == 0 ? _rng.Next(100000000, 999999999) : id;
 
@@ -44,14 +47,14 @@ namespace MyBot.Modules
             {
                 using (StreamWriter writer = File.CreateText(_questionPath))
                 {
-                    writer.WriteLine($"{Id},{Content},{HowToRepeat},{Solved},{Time},{UserId}");
+                    writer.WriteLine($"{Id},{Content},{HowToRepeat},{Solved},{Time},{UserId},{AssignedTo}");
                 }
             }
             else
             {
                 using (StreamWriter writer = File.AppendText(_questionPath))
                 {
-                    writer.WriteLine($"{Id},{Content},{HowToRepeat},{Solved},{Time},{UserId}");
+                    writer.WriteLine($"{Id},{Content},{HowToRepeat},{Solved},{Time},{UserId},{AssignedTo}");
                 }
             }
         }
@@ -62,7 +65,7 @@ namespace MyBot.Modules
             {
                 using (StreamWriter writer = File.CreateText(_questionPath)) // Get all used IDs from file and assign new id to question
                 {
-                    writer.WriteLine($"{Id},{Content},{HowToRepeat},{Solved},{Time},{UserId}");
+                    writer.WriteLine($"{Id},{Content},{HowToRepeat},{Solved},{Time},{UserId},{AssignedTo}");
                 }
             }
             else
@@ -75,7 +78,7 @@ namespace MyBot.Modules
                     long.TryParse(line.Split(',')[0], out var writtenId);
                     if (writtenId == Id)
                     {
-                        newLines[index] = $"{Id},{Content},{HowToRepeat},{Solved},{Time},{UserId}";
+                        newLines[index] = $"{Id},{Content},{HowToRepeat},{Solved},{Time},{UserId},{AssignedTo}";
                         
                     }
                     else
