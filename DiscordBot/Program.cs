@@ -301,7 +301,7 @@ namespace MyBot
                                     var q = CreateQuestion(msg);
                                     //var q = new Question(msg.Content, "null");
                                     Console.WriteLine("Made object");
-                                    q.WriteToFile();
+                                    q.AddToFile();
                                     ActiveQuestions.Add(q);
                                 }
                                 else
@@ -322,12 +322,65 @@ namespace MyBot
                             // if Teacher this message may be a broadcast to students
                             case "TEACHER":
                                 SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
+                                if (msg.Content.Contains("?Q"))
+                                {
+                                    foreach (var question in ActiveQuestions)
+                                    {
+                                        if (!question.Solved)
+                                        {
+                                            var builder = new EmbedBuilder
+                                            {
+                                                Color = Color.Green,
+                                                Description = question.Content + "\n" + question.HowToRepeat
+                                            };
+                                            builder.AddField("Brukernavn: ",
+                                                    GetServer.GetUser(question.UserId).Username)
+                                                .AddField("Spørsmål ID", question.Id)
+                                                .AddField("Dato", question.Time)
+                                                .AddField("Svar på spørsmålet ved å skrive:", "?SOLVE [Spørsmål ID]");
+                                            Console.WriteLine($"Sent question to: {msg.Author.Username}");
+                                            await msg.Author.SendMessageAsync("", false, builder.Build());
+                                            break;
+                                        }
+
+                                        await msg.Author.SendMessageAsync(
+                                            "Det ser ut til at det er ingen flere aktive spørsmål! :)");
+                                    }
+                                }
+                                else if (msg.Content.Contains("?questions"))
+                                {
+                                    var active = 0;
+                                    foreach (var q in ActiveQuestions)
+                                    {
+                                        active += q.Solved ? 0 : 1;
+                                    }
+                                    await msg.Author.SendMessageAsync($"Antall aktive spørsmål: {active}");
+                                }
+                                else if (msg.Content.Contains("?solve") || msg.Content.Contains("?SOLVE"))
+                                {
+                                    var parts = msg.Content.Split(' ');
+                                    long.TryParse(parts[1], out var questionId);
+                                    foreach (var question in ActiveQuestions)
+                                    {
+                                        if (questionId != question.Id) continue;
+                                        question.Solved = true;
+                                        await msg.Author.SendMessageAsync($"Spørsmål ID {question.Id} Løst!");
+                                        break;
+                                    }
+
+                                    foreach (var q in ActiveQuestions)
+                                    {
+                                        q.WriteToFile();
+                                    }
+                                }
+                                else
+                                {
+                                    await msg.Author.SendMessageAsync(
+                                        "Heisann! Jeg forsto ikke helt den kommandoen... Hvis du vil ha en oversikt over aktive spørsmål, send ?questions, hvis du vil at jeg skal sende deg ett spørsmål, svar med ?Q");
+                                }
                                 break;
 
-                            default:
-                                SendMessageBotChannel("Unknown user replying to bot", "LOG", "Server");
-                                Logging($"Unregistered user {msg.Author.Username} attempring to communicate with bot: \n{msg.Content}");
-                                break;
+                            
                         }
                     }
                 }

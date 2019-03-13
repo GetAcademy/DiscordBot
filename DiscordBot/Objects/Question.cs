@@ -9,9 +9,9 @@ namespace MyBot.Modules
 {
     public class Question
     {
-        private string _content;
-        private string _howToRepeat;
-        private readonly string _time = DateTime.Now.ToLongDateString();
+        public string Content;
+        public string HowToRepeat;
+        public readonly string Time = DateTime.Now.ToLongDateString();
         private readonly Random _rng = new Random();
 
         public ulong UserId;
@@ -26,12 +26,12 @@ namespace MyBot.Modules
         public Question(ulong userId, string content, string howToRepeat, long id = 0, string time = null, bool solved=false)
         {
             UserId = userId;
-            _content = content;
-            _howToRepeat = howToRepeat;
+            Content = content;
+            HowToRepeat = howToRepeat;
             Solved = solved;
             if (time != null)
             {
-                _time = time;
+                Time = time;
             }
 
             if (id == 0)
@@ -45,20 +45,59 @@ namespace MyBot.Modules
 
         }
 
-        public void WriteToFile()
+        public void AddToFile()
         {
             if (!File.Exists(_questionPath))
             {
-                using (StreamWriter writer = File.CreateText(_questionPath)) // Get all used IDs from file and assign new id to question
+                using (StreamWriter writer = File.CreateText(_questionPath))
                 {
-                    writer.WriteLine($"{Id},{_content},{_howToRepeat},{Solved},{_time},{UserId}\n");
+                    writer.WriteLine($"{Id},{Content},{HowToRepeat},{Solved},{Time},{UserId}");
                 }
             }
             else
             {
                 using (StreamWriter writer = File.AppendText(_questionPath))
                 {
-                    writer.WriteLine($"{Id},{_content},{_howToRepeat},{Solved},{_time}, {UserId}\n");
+                    writer.WriteLine($"{Id},{Content},{HowToRepeat},{Solved},{Time},{UserId}");
+                }
+            }
+        }
+
+        public void WriteToFile()
+        {
+            if (!File.Exists(_questionPath))
+            {
+                using (StreamWriter writer = File.CreateText(_questionPath)) // Get all used IDs from file and assign new id to question
+                {
+                    writer.WriteLine($"{Id},{Content},{HowToRepeat},{Solved},{Time},{UserId}");
+                }
+            }
+            else
+            {
+                var lines = File.ReadAllLines(_questionPath);
+                var newLines = new string[lines.Length];
+                var index = 0;
+                foreach (var line in lines)
+                {
+                    long.TryParse(line.Split(',')[0], out var writtenId);
+                    if (writtenId == Id)
+                    {
+                        newLines[index] = $"{Id},{Content},{HowToRepeat},{Solved},{Time},{UserId}";
+                        
+                    }
+                    else
+                    {
+                        newLines[index] = line;
+                    }
+
+                    index++;
+                }
+                using (StreamWriter writer = File.CreateText(_questionPath))
+                {
+                    foreach (var line in newLines)
+                    {
+                        writer.WriteLine(line);
+                    }
                 }
             }
 

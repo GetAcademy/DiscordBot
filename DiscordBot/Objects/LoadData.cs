@@ -27,11 +27,11 @@ namespace MyBot.Modules
                 {
                     continue;
                 }
-                var content = values[0];
-                var time = values[3];
-                var howToRepeat = values[1];
-                long.TryParse(values[2], out var id);
-                bool.TryParse(values[4], out var solved);
+                var content = values[1];
+                var time = values[4];
+                var howToRepeat = values[2];
+                long.TryParse(values[0], out var id);
+                bool.TryParse(values[3], out var solved);
                 ulong.TryParse(values[5], out var userId);
                 
                 questions.Add(new Question(userId, content, howToRepeat, id, time, solved));
