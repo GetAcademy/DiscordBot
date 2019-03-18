@@ -106,7 +106,7 @@ namespace MyBot
 
         #region Fields
 
-        private Timer timer;
+        private Timer _timer;
 
         private static readonly string path = @"logfile.txt";
         private static readonly string _userPath = @"users.txt";
@@ -151,22 +151,7 @@ namespace MyBot
                     sw2.WriteLine("Brukere som har blitt registrert\n");
                 }
             }
-            timer = new Timer(AnnounceFridayReminder);
-
-            // Figure how much time until 12:00
-            DateTime now = DateTime.Now;
-            DateTime twelveOClock = DateTime.Today.AddHours(12.0);
-
-            // If it's already past 12:00    
-            if (now > twelveOClock)
-            {
-                twelveOClock = twelveOClock.AddDays(1.0);
-            }
-
-            int msUntilFour = (int)((twelveOClock - now).TotalMilliseconds);
-
-            // Set the timer to once per day.
-            timer.Change(msUntilFour, 86400000);
+            SetTimer();
 
             ActiveQuestions = LoadData.ReadQuestions(); //Load all stored questions into memory
             Logging("\n\nGETsharp Bot startup");
@@ -195,6 +180,26 @@ namespace MyBot
             await _client.LoginAsync(TokenType.Bot, _botToken);
             await _client.StartAsync();
             await Task.Delay(-1);
+        }
+
+        private void SetTimer()
+        {
+            _timer = new Timer(AnnounceFridayReminder);
+
+            // Figure how much time until 12:00
+            DateTime now = DateTime.Now;
+            DateTime twelveOClock = DateTime.Today.AddHours(12.0);
+
+            // If it's already past 12:00    
+            if (now > twelveOClock)
+            {
+                twelveOClock = twelveOClock.AddDays(1.0);
+            }
+
+            int msUntilFour = (int) ((twelveOClock - now).TotalMilliseconds);
+
+            // Set the timer to once per day.
+            _timer.Change(msUntilFour, 86400000);
         }
 
         private void AnnounceFridayReminder(object state)
@@ -284,7 +289,7 @@ namespace MyBot
                 
                 IReadOnlyCollection<SocketRole> userRoles = Guild.GetUser(msg.Author.Id).Roles;
                 //The roles "ADMIN", "TEACHER" and "STUDENT" must be EXCLUSIVE!!!
-                var done = false;
+                //var done = false;
                 if (userRoles.Count > 0)
                 {
                     //Console.WriteLine("User has roles!");
@@ -296,150 +301,190 @@ namespace MyBot
                             
                             //if student, Create a question object
                             case "STUDENT":
-                                SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
-                                if (msg.Content.Contains("!question"))
-                                {
-                                    var q = CreateQuestion(msg);
-                                    //var q = new Question(msg.Content, "null");
-                                    Console.WriteLine("Made object");
-                                    q.AddToFile();
-                                    ActiveQuestions.Add(q);
-                                }
-                                else
-                                {
-                                    await msg.Author.SendMessageAsync("Heisann! Hvis du har ett spørsmål til oss, svar med " +
-                                                                "!question \"[Spørsmålet ditt] | [Hvordan vi kan gjenskape problemet]\"" +
-                                                                "\n __**eksempel:**__ \n!question Hvordan sender jeg kommandoer til botten | Prøver å sende en kommando, men det skjer ingen ting\n" +
-                                                                "**!NB!** Husk å ha med \"|\" mellom hver del av spørsmålet du skal sende! ;)");
-                                }
-
-                                //done = true;
+                                await ResplyStudent(msg, userRole);
                                 break;
 
                             // if Admin this may be a command to the bot
                             case "ADMIN":
                                 SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
-                                //done = true;
                                 break;
 
                             // if Teacher this message may be a broadcast to students
                             case "TEACHER":
-                                SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
-                                if (msg.Content.Contains("?Q"))
-                                {
-                                    if (ActiveQuestions.Any(question => !question.Solved))
-                                    {
-                                        if (ActiveQuestions.Any(question => (question.AssignedTo != 0)))
-                                        {
-                                            await msg.Author.SendMessageAsync(
-                                                "All active questions have been assigned to a teacher");
-                                            break;
-                                        }
-                                        foreach (var question in ActiveQuestions)
-                                        {
-                                            if (!question.Solved && question.AssignedTo == ulong.MinValue)
-                                            {
-                                                var builder = new EmbedBuilder
-                                                {
-                                                    Color = Color.Green,
-                                                    Description = question.Content + "\n" + question.HowToRepeat
-                                                };
-                                                builder.AddField("Brukernavn: ",
-                                                        GetServer.GetUser(question.UserId).Username)
-                                                    .AddField("Spørsmål ID", question.Id)
-                                                    .AddField("Dato", question.Time)
-                                                    .AddField("Svar på spørsmålet ved å skrive:",
-                                                        $"?SOLVE {question.Id}");
-                                                Console.WriteLine($"Sent question to: {msg.Author.Username}");
-                                                question.AssignedTo = msg.Author.Id;
-                                                question.WriteToFile();
-                                                await msg.Author.SendMessageAsync("", false, builder.Build());
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        await msg.Author.SendMessageAsync(
-                                            "Det ser ut til at det er ingen flere aktive spørsmål! :)");
-
-                                    }
-                                }
-                                else if (msg.Content.Contains("?questions"))
-                                {
-                                    var active = 0;
-                                    foreach (var q in ActiveQuestions)
-                                    {
-                                        active += q.Solved ? 0 : 1;
-                                    }
-                                    await msg.Author.SendMessageAsync($"Antall aktive spørsmål: {active}");
-                                }
-                                else if (msg.Content.Contains("?solve") || msg.Content.Contains("?SOLVE"))
-                                {
-                                    var parts = msg.Content.Split(' ');
-                                    long.TryParse(parts[1], out var questionId);
-                                    foreach (var question in ActiveQuestions)
-                                    {
-                                        if (questionId != question.Id) continue;
-                                        question.Solved = true;
-                                        await msg.Author.SendMessageAsync($"Spørsmål ID {question.Id} Løst!");
-                                        break;
-                                    }
-
-                                    foreach (var q in ActiveQuestions)
-                                    {
-                                        q.WriteToFile();
-                                    }
-                                }
-                                else if(msg.Content.Contains("!BROADCAST"))
-                                {
-                                    var message = msg.Content.Substring(10);
-                                    foreach (var user in Guild.Users)
-                                    {
-                                        if (user.Roles.Any(r => r.ToString() == "STUDENT"))
-                                        {
-                                            await user.SendMessageAsync($"Dette er en broadcast melding fra {msg.Author.Username}\n" + message);
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    await msg.Author.SendMessageAsync(
-                                        "Heisann! Jeg forsto ikke helt den kommandoen... \n" +
-                                        "Hvis du vil ha en oversikt over aktive spørsmål, send ?questions\n" +
-                                        "Hvis du vil at jeg skal sende deg ett spørsmål, svar med ?Q\n" +
-                                        "Hvis du vil sende en melding til alle registrerte studentder, svar med !BROADCAST [Melding]");
-                                }
-
-                                //done = true;
+                                await ReplyTeacher(msg, userRole);
                                 break;
-
-                            
                         }
                     }
                 }
+
                 if (msg.Content.Split(' ')[0].ToLower().Contains("!info")) //DM message says !info
                 {
-                    var report = $"Replying to user: {msg.Author.Username}\n";
-                    SendMessageBotChannel(report, "Reply", "Automatic");
-                    Logging(report);
-                    await msg.Author.SendMessageAsync(
-                        "Heisann! Her kommer det mer info etterhvert. Work in progress ;)"
-                        );
+                    await ReplyInfo(msg);
                 } else if (msg.Content.Split(' ').Contains("!navn"))
                 {
-                    var message = msg.Content.Split(',');
-                    var firstName = message[1];
-                    var lastName = message[2];
-                    var id = msg.Author.Id;
-                    var username = msg.Author.Username;
-                    using (StreamWriter sw2 = File.AppendText(_userPath))
+                    await RegisterName(msg);
+                }
+            }
+        }
+
+        private static async Task RegisterName(SocketMessage msg)
+        {
+            var message = msg.Content.Split(',');
+            var firstName = message[1];
+            var lastName = message[2];
+            var id = msg.Author.Id;
+            var username = msg.Author.Username;
+            using (StreamWriter sw2 = File.AppendText(_userPath))
+            {
+                sw2.WriteLine($"{id},{lastName},{firstName},{username}");
+            }
+
+            await msg.Author.SendMessageAsync("Flott! Nå er du registrert!");
+        }
+
+        private static async Task ReplyInfo(SocketMessage msg)
+        {
+            var report = $"Replying to user: {msg.Author.Username}\n";
+            SendMessageBotChannel(report, "Reply", "Automatic");
+            Logging(report);
+            await msg.Author.SendMessageAsync(
+                "Heisann! Her kommer det mer info etterhvert. Work in progress ;)"
+            );
+        }
+
+        private static async Task ReplyTeacher(SocketMessage msg, SocketRole userRole)
+        {
+            SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
+            if (msg.Content.Contains("?Q"))
+            {
+                if (ActiveQuestions.Any(question => !question.Solved))
+                {
+                    if (ActiveQuestions.Any(question => (question.AssignedTo != 0)))
                     {
-                        sw2.WriteLine($"{id},{lastName},{firstName},{username}");
+                        await msg.Author.SendMessageAsync(
+                            "All active questions have been assigned to a teacher");
+                        return;
                     }
 
-                    await msg.Author.SendMessageAsync("Flott! Nå er du registrert!");
+                    foreach (var question in ActiveQuestions)
+                    {
+                        if (!question.Solved && question.AssignedTo == ulong.MinValue)
+                        {
+                            await ReplyWithQuestion(msg, question);
+                            break;
+                        }
+                    }
                 }
+                else
+                {
+                    await msg.Author.SendMessageAsync(
+                        "Det ser ut til at det er ingen flere aktive spørsmål! :)");
+                }
+            }
+            else if (msg.Content.Contains("?questions"))
+            {
+                await ListActiveQuestions(msg);
+            }
+            else if (msg.Content.Contains("?solve") || msg.Content.Contains("?SOLVE"))
+            {
+                await SolveQuestion(msg);
+            }
+            else if (msg.Content.Contains("!BROADCAST"))
+            {
+                await BroadcastMessage(msg);
+            }
+            else
+            {
+                await ReplyUnknownCommand(msg);
+            }
+        }
+
+        private static async Task BroadcastMessage(SocketMessage msg)
+        {
+            var message = msg.Content.Substring(10);
+            foreach (var user in Guild.Users)
+            {
+                if (user.Roles.Any(r => r.ToString() == "STUDENT"))
+                {
+                    await user.SendMessageAsync($"Dette er en broadcast melding fra {msg.Author.Username}\n" + message);
+                }
+            }
+        }
+
+        private static async Task SolveQuestion(SocketMessage msg)
+        {
+            var parts = msg.Content.Split(' ');
+            long.TryParse(parts[1], out var questionId);
+            foreach (var question in ActiveQuestions)
+            {
+                if (questionId != question.Id) continue;
+                question.Solved = true;
+                await msg.Author.SendMessageAsync($"Spørsmål ID {question.Id} Løst!");
+                break;
+            }
+
+            foreach (var q in ActiveQuestions)
+            {
+                q.WriteToFile();
+            }
+        }
+
+        private static async Task ListActiveQuestions(SocketMessage msg)
+        {
+            var active = 0;
+            foreach (var q in ActiveQuestions)
+            {
+                active += q.Solved ? 0 : 1;
+            }
+
+            await msg.Author.SendMessageAsync($"Antall aktive spørsmål: {active}");
+        }
+
+        private static async Task ReplyUnknownCommand(SocketMessage msg)
+        {
+            await msg.Author.SendMessageAsync(
+                "Heisann! Jeg forsto ikke helt den kommandoen... \n" +
+                "Hvis du vil ha en oversikt over aktive spørsmål, send ?questions\n" +
+                "Hvis du vil at jeg skal sende deg ett spørsmål, svar med ?Q\n" +
+                "Hvis du vil sende en melding til alle registrerte studentder, svar med !BROADCAST [Melding]");
+        }
+
+        private static async Task ReplyWithQuestion(SocketMessage msg, Question question)
+        {
+            var builder = new EmbedBuilder
+            {
+                Color = Color.Green,
+                Description = question.Content + "\n" + question.HowToRepeat
+            };
+            builder.AddField("Brukernavn: ",
+                    GetServer.GetUser(question.UserId).Username)
+                .AddField("Spørsmål ID", question.Id)
+                .AddField("Dato", question.Time)
+                .AddField("Sett spørsmålet til løst ved å skrive:",
+                    $"?SOLVE {question.Id}");
+            Console.WriteLine($"Sent question to: {msg.Author.Username}");
+            question.AssignedTo = msg.Author.Id;
+            question.WriteToFile();
+            await msg.Author.SendMessageAsync("", false, builder.Build());
+        }
+
+        private async Task ResplyStudent(SocketMessage msg, SocketRole userRole)
+        {
+            SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
+            if (msg.Content.Contains("!question"))
+            {
+                var q = CreateQuestion(msg);
+                //var q = new Question(msg.Content, "null");
+                Console.WriteLine("Made object");
+                q.AddToFile();
+                ActiveQuestions.Add(q);
+            }
+            else
+            {
+                await msg.Author.SendMessageAsync("Heisann! Hvis du har ett spørsmål til oss, svar med " +
+                                                  "!question \"[Spørsmålet ditt] | [Hvordan vi kan gjenskape problemet]\"" +
+                                                  "\n __**eksempel:**__ \n!question Hvordan sender jeg kommandoer til botten | Prøver å sende en kommando, men det skjer ingen ting\n" +
+                                                  "**!NB!** Husk å ha med \"|\" mellom hver del av spørsmålet du skal sende! ;)");
             }
         }
 
