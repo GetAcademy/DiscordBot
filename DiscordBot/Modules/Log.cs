@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Amazon.CloudFront.Model;
 using Discord;
 using Discord.Commands;
 

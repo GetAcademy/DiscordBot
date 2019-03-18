@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Amazon.EC2.Model;
 using Newtonsoft.Json.Serialization;
 
 namespace MyBot.Modules

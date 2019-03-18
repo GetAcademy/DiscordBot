@@ -113,7 +113,7 @@ namespace MyBot
         private static readonly string _daemonPath = @"crashHandler.exe";
         public static List<Question> ActiveQuestions = new List<Question>();
         private readonly ulong _serverName = 540248332069765128;
-        private readonly string _botToken = File.ReadAllLines(@"I:\GET\DiscordBot\token.txt")[0];
+        private readonly string _botToken = File.ReadAllLines(@"E:\GET\DiscordBot\token.txt")[0];
 
 
         #endregion
