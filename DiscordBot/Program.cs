@@ -1,19 +1,21 @@
-﻿using Discord;
-using Discord.WebSocket;
-using Discord.Commands;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
+using DiscordBot.Objects;
 using Microsoft.Extensions.DependencyInjection;
-using MyBot.Modules;
+using DiscordBot.Modules;
 using LogMessage = Discord.LogMessage;
 
 
-namespace MyBot
+namespace DiscordBot
 {
     public class Program
     {
@@ -92,28 +94,28 @@ namespace MyBot
 
         #endregion
 
-
-
         #region voice channels //REPLACE WITH NEW VALUES
         private readonly ulong _generalVoice = 552166007767171083;
         private readonly ulong _team1Voice = 552166126403190795;
         private readonly ulong _team2Voice = 552166146816606229;
         #endregion
 
-        private DiscordSocketClient _client;
+        private static DiscordSocketClient _client;
         private CommandService _commands;
         private IServiceProvider _services;
 
         #region Fields
 
         private Timer _timer;
-
+        private TimerAlerts _alerts;
+        private readonly DateTime _startTime = DateTime.Now;
+        public static bool StartDebugOn;
         private static readonly string path = @"logfile.txt";
         private static readonly string _userPath = @"users.txt";
         private static readonly string _daemonPath = @"crashHandler.exe";
         public static List<Question> ActiveQuestions = new List<Question>();
         private readonly ulong _serverName = 540248332069765128;
-        private readonly string _botToken = File.ReadAllLines(@"E:\GET\DiscordBot\token.txt")[0];
+        private readonly string _botToken = File.ReadAllLines(@"F:\GET\DiscordBot\token.txt")[0];
 
 
         #endregion
@@ -135,6 +137,25 @@ namespace MyBot
 
         public async Task RunBotAsync()
         {
+            ShowMessage();
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine("Debug mode? (Y/N)");
+            Console.ForegroundColor = ConsoleColor.White;
+            var dbug = Console.ReadLine();
+            if (dbug == "n" || dbug == "N")
+            {
+                StartDebugOn = false;
+            } else if (dbug == "y" || dbug == "y")
+            {
+                StartDebugOn = true;
+            }
+            else
+            {
+                Console.BackgroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine("Unable to parse command, starting in debug as default");
+                Console.BackgroundColor = ConsoleColor.Black;
+                StartDebugOn = true;
+            }
             if (!File.Exists(path))
             {
                 // Create a file to write to.
@@ -151,7 +172,6 @@ namespace MyBot
                     sw2.WriteLine("Brukere som har blitt registrert\n");
                 }
             }
-            SetTimer();
 
             ActiveQuestions = LoadData.ReadQuestions(); //Load all stored questions into memory
             Logging("\n\nGETsharp Bot startup");
@@ -162,6 +182,7 @@ namespace MyBot
                 .AddSingleton(_client)
                 .AddSingleton(_commands)
                 .BuildServiceProvider();
+            _alerts = new TimerAlerts();
 
             #region client Event handler subscriptions
             _client.Log += Log; // Adds the local Log() Event handler to the client.
@@ -171,10 +192,18 @@ namespace MyBot
             _client.MessageReceived += ReplyUserDmAsync;
             _client.UserLeft += HandleUserLeaveAsync;
             //_client.GuildMemberUpdated += ReportMemberUpdateAsync;
-            _client.UserVoiceStateUpdated += HandleUserVoiceActionAsync;
+            //_client.UserVoiceStateUpdated += HandleUserVoiceActionAsync;
+            #endregion
+
+            #region Timer Alert Subscriptions
+
+            _alerts.RegisterUsers += TakeAttendance;
+            _alerts.FridayReminder += PostFridayReminder;
+            _alerts.TwelveOClock += PostDailyReminder;
 
             #endregion
 
+            DisplayQuestionsInQueueStatus();
 
             await RegisterCommandsAsync();
             await _client.LoginAsync(TokenType.Bot, _botToken);
@@ -182,29 +211,41 @@ namespace MyBot
             await Task.Delay(-1);
         }
 
-        private void SetTimer()
+        private void PostDailyReminder(object sender, TimerAlertsEventArgs e)
         {
-            _timer = new Timer(AnnounceFridayReminder);
-
-            // Figure how much time until 12:00
-            DateTime now = DateTime.Now;
-            DateTime twelveOClock = DateTime.Today.AddHours(12.0);
-
-            // If it's already past 12:00    
-            if (now > twelveOClock)
-            {
-                twelveOClock = twelveOClock.AddDays(1.0);
-            }
-
-            int msUntilFour = (int) ((twelveOClock - now).TotalMilliseconds);
-
-            // Set the timer to once per day.
-            _timer.Change(msUntilFour, 86400000);
+            Console.WriteLine("12 o' clock daily reminder");
         }
 
-        private void AnnounceFridayReminder(object state)
+        private void PostFridayReminder(object sender, TimerAlertsEventArgs e)
         {
-            GeneralChannel.SendMessageAsync("Klokken er nå 12:00");
+            Console.WriteLine("Trying to post message");
+            EmbedBuilder builder = new EmbedBuilder();
+            builder
+                .WithColor(Color.Blue)
+                .WithDescription(
+                    $"Heisann! Nå er det fredag. Husk å spille inn ukens video!\n Spill inn i OBS og send til " +
+                    $"{_client.GetUser(268754579988938752).Mention}" +
+                    $"/{_client.GetUser(363256000800751616).Mention}" +
+                    $"/{_client.GetUser(112955646701297664).Mention}")
+                .WithImageUrl(@"https://i.pinimg.com/originals/a8/ed/1e/a8ed1e3a3545b69b2aeb8512b6a55917.jpg")
+                .AddField("Husk å:",
+                    "Gå over hva du har lært, men også kanskje aller viktigst hva her vært " +
+                    "vanskelig eller har jeg ikke fått til *ennå*! Husk at man lærer mest når man feiler!");
+
+            //StartIt4GeneralTextChannel.SendMessageAsync("", false, builder.Build());
+            _client.GetGuild(_GET_server).GetTextChannel(538290239135940612)
+                .SendMessageAsync("test", false, builder.Build());
+            //BotChannel.SendMessageAsync("", false, builder.Build());
+        }
+
+        private void TakeAttendance(object sender, TimerAlertsEventArgs e)
+        {
+            ShowMessage();
+            GeneralChannel.SendMessageAsync("Klokken er nå 10:00. Jeg tar oppmøte");
+            var result = RegisterUsersAutomatic.Register();
+            BotChannel.SendMessageAsync($"Active users: {result.Item2.Count}");
+            result.Item2.ForEach(x => Console.WriteLine(GetServer.GetUser(x).Username));
+            _client.GetUser(112955646701297664).SendFileAsync(result.Item1);
         }
 
 
@@ -212,21 +253,33 @@ namespace MyBot
 
         private Task HandleUserVoiceActionAsync(SocketUser user, SocketVoiceState before, SocketVoiceState after)
         {
+            ShowMessage(user.Username);
+            UserActionTest(user, after);
             Console.WriteLine($"User {user.Username} {user.Id}\nMoved from: {before.VoiceChannel.Name}\nMoved to: {after.VoiceChannel.Name}");
             return Task.CompletedTask;
         }
 
+        private void UserActionTest(SocketUser user, SocketVoiceState after)
+        {
+            Console.WriteLine(after.VoiceChannel.Name + " " + user.Username);
+            if (after.VoiceChannel.Name == "null")
+            {
+                Console.WriteLine("It's null");
+            }
+        }
+
         private Task ReportMemberUpdateAsync(SocketGuildUser before, SocketGuildUser after)
         {
+            ShowMessage();
             // Logs and reports to BotChannel of the changes done to the guild member
             // Currently this code also reports user status and online/offline actions!!!!!
             Console.WriteLine($"Change to user: {after.Username}\nAction: {after.Hierarchy}");
             return Task.CompletedTask;
         }
 
-
         private Task ReadyAsync()
         {
+            ShowMessage();
             #region Testing Server
             GeneralChannel = _client.GetGuild(_serverName).GetTextChannel(_general);
             BotChannel = _client.GetGuild(_serverName).GetTextChannel(_bot);
@@ -242,7 +295,7 @@ namespace MyBot
             Guild = _client.GetGuild(_serverName); //Server object
             #endregion
 
-            #region MyRegion
+            #region GETserver
 
             GetServer = _client.GetGuild(_GET_server); // GET server
             GetServerGeneralChannel = GetServer.GetTextChannel(_GET_general); // General text channel
@@ -271,37 +324,42 @@ namespace MyBot
 
         private Task HandleUserLeaveAsync(SocketGuildUser arg)
         {
+            ShowMessage();
             SendMessageBotChannel($"User: {arg.Username} Left the server", "User Left", "Automatic");
             return Task.CompletedTask;
         }
 
         private async Task ReplyUserDmAsync(SocketMessage msg)
         {
-            //Console.WriteLine(msg.Channel.Name);
+            ShowMessage();
             var name = String.Copy(msg.Channel.Name);
             name = name.Substring(1, name.Length - 6);
-            //Console.WriteLine($"{msg.Author.Username} == {name}");
             if (msg.Author.Username == name && !msg.Author.IsBot) //Message is DM
             {
-                var role = "";
+                //var role = "";
                 Logging($"Message recieved from: {msg.Author.Username} id: {msg.Author.Id}\nContent: {msg.Content}");
                 Console.WriteLine("Revieved DM from: " + msg.Channel.Name);
                 
                 IReadOnlyCollection<SocketRole> userRoles = Guild.GetUser(msg.Author.Id).Roles;
                 //The roles "ADMIN", "TEACHER" and "STUDENT" must be EXCLUSIVE!!!
-                //var done = false;
+                if (msg.Content.Split(' ')[0].ToLower().Contains("!info")) //DM message says !info
+                {
+                    await ReplyInfo(msg);
+                }
+                else if (msg.Content.Split(' ').Contains("!navn"))
+                {
+                    await RegisterName(msg);
+                }
+
                 if (userRoles.Count > 0)
                 {
-                    //Console.WriteLine("User has roles!");
                     foreach (var userRole in userRoles)
                     {
-                        //if (done) continue;
                         switch (userRole.Name.ToString())
                         {
-                            
                             //if student, Create a question object
                             case "STUDENT":
-                                await ResplyStudent(msg, userRole);
+                                await ReplyStudent(msg, userRole);
                                 break;
 
                             // if Admin this may be a command to the bot
@@ -317,33 +375,31 @@ namespace MyBot
                     }
                 }
 
-                if (msg.Content.Split(' ')[0].ToLower().Contains("!info")) //DM message says !info
-                {
-                    await ReplyInfo(msg);
-                } else if (msg.Content.Split(' ').Contains("!navn"))
-                {
-                    await RegisterName(msg);
-                }
+
             }
         }
 
         private static async Task RegisterName(SocketMessage msg)
         {
+            ShowMessage();
             var message = msg.Content.Split(',');
             var firstName = message[1];
             var lastName = message[2];
             var id = msg.Author.Id;
             var username = msg.Author.Username;
-            using (StreamWriter sw2 = File.AppendText(_userPath))
-            {
-                sw2.WriteLine($"{id},{lastName},{firstName},{username}");
-            }
-
-            await msg.Author.SendMessageAsync("Flott! Nå er du registrert!");
+            //using (var sw2 = File.AppendText(_userPath))
+            //{
+            //    sw2.WriteLine($"{id},{lastName},{firstName},{username}");
+            //}
+            //await AssignRole(GetServer.GetUser(msg.Author.Id));
+            await msg.Author.SendMessageAsync($"Flott! Nå er du registrert!\n **Er dette korrekt?**" +
+                                              $"\n\nFornavn: {firstName} Etternavn: {lastName}\n\n__**Hvis dette er feil," +
+                                              $" ta kontakt med {GetServer.GetUser(112955646701297664).Mention}**__");
         }
 
         private static async Task ReplyInfo(SocketMessage msg)
         {
+            ShowMessage();
             var report = $"Replying to user: {msg.Author.Username}\n";
             SendMessageBotChannel(report, "Reply", "Automatic");
             Logging(report);
@@ -354,12 +410,13 @@ namespace MyBot
 
         private static async Task ReplyTeacher(SocketMessage msg, SocketRole userRole)
         {
+            ShowMessage();
             SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
             if (msg.Content.Contains("?Q"))
             {
                 if (ActiveQuestions.Any(question => !question.Solved))
                 {
-                    if (ActiveQuestions.Any(question => (question.AssignedTo != 0)))
+                    if (!ActiveQuestions.Any(question => (question.AssignedTo != 0)))
                     {
                         await msg.Author.SendMessageAsync(
                             "All active questions have been assigned to a teacher");
@@ -401,6 +458,7 @@ namespace MyBot
 
         private static async Task BroadcastMessage(SocketMessage msg)
         {
+            ShowMessage();
             var message = msg.Content.Substring(10);
             foreach (var user in Guild.Users)
             {
@@ -413,6 +471,7 @@ namespace MyBot
 
         private static async Task SolveQuestion(SocketMessage msg)
         {
+            ShowMessage();
             var parts = msg.Content.Split(' ');
             long.TryParse(parts[1], out var questionId);
             foreach (var question in ActiveQuestions)
@@ -427,10 +486,13 @@ namespace MyBot
             {
                 q.WriteToFile();
             }
+
+            DisplayQuestionsInQueueStatus();
         }
 
         private static async Task ListActiveQuestions(SocketMessage msg)
         {
+            ShowMessage();
             var active = 0;
             foreach (var q in ActiveQuestions)
             {
@@ -442,6 +504,7 @@ namespace MyBot
 
         private static async Task ReplyUnknownCommand(SocketMessage msg)
         {
+            ShowMessage();
             await msg.Author.SendMessageAsync(
                 "Heisann! Jeg forsto ikke helt den kommandoen... \n" +
                 "Hvis du vil ha en oversikt over aktive spørsmål, send ?questions\n" +
@@ -451,6 +514,7 @@ namespace MyBot
 
         private static async Task ReplyWithQuestion(SocketMessage msg, Question question)
         {
+            ShowMessage();
             var builder = new EmbedBuilder
             {
                 Color = Color.Green,
@@ -468,8 +532,9 @@ namespace MyBot
             await msg.Author.SendMessageAsync("", false, builder.Build());
         }
 
-        private async Task ResplyStudent(SocketMessage msg, SocketRole userRole)
+        private async Task ReplyStudent(SocketMessage msg, SocketRole userRole)
         {
+            ShowMessage();
             SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
             if (msg.Content.Contains("!question"))
             {
@@ -478,6 +543,7 @@ namespace MyBot
                 Console.WriteLine("Made object");
                 q.AddToFile();
                 ActiveQuestions.Add(q);
+                DisplayQuestionsInQueueStatus();
             }
             else
             {
@@ -490,6 +556,7 @@ namespace MyBot
 
         private Question CreateQuestion(SocketMessage msg)
         {
+            ShowMessage();
             var values = msg.Content.Split('|');
             var content = values[0] == "!question" ?  values[1] : values[0];
             var howTo = values[0] == "!question" ?  values[2] : values[1];
@@ -506,6 +573,7 @@ namespace MyBot
 
         private Task MessageDeleted(Cacheable<IMessage, ulong> arg1, ISocketMessageChannel arg2)
         {
+            ShowMessage();
             SendMessageBotChannel($"Message ID: {arg1.Id} Deleted", "Deletion", "Automatic");
             Logging("Message ID: " + arg1.Id + " Deleted");
             return Task.CompletedTask;
@@ -514,8 +582,10 @@ namespace MyBot
 
         private async Task AnnounceUserJoined(SocketGuildUser user)
         {
+            ShowMessage();
             var guild = user.Guild;
             var channel = guild.DefaultChannel;
+
             Logging($"UserID: {user.Id} Joined server");
             Console.WriteLine($"UserID: {user.Id} Joined server");
             EmbedBuilder build = new EmbedBuilder
@@ -546,8 +616,23 @@ namespace MyBot
 
         }
 
+        private static async Task AssignRole(SocketGuildUser user)
+        {
+            ShowMessage();
+            //var user = Context.User;
+            //var role = GetServer.Roles.FirstOrDefault(x => x.Name == "STUDENT"); //GET SERVER
+            var role = Guild.Roles.FirstOrDefault(x => x.Name == "STUDENT"); //TESTING SERVER
+            foreach (var role2 in GetServer.Roles)
+            {
+                Console.WriteLine(role2.Name);
+            }
+
+            await user.AddRoleAsync(role);
+        }
+
         private static Task Log(LogMessage message)
         {
+            ShowMessage();
             switch (message.Severity)
             {
                 case LogSeverity.Critical:
@@ -576,6 +661,7 @@ namespace MyBot
 
         public async Task RegisterCommandsAsync()
         {
+            ShowMessage();
             _client.MessageReceived += HandleCommandAsync;
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
         }
@@ -583,6 +669,7 @@ namespace MyBot
         // Handles incoming message on the server
         private async Task HandleCommandAsync(SocketMessage arg)
         {
+            ShowMessage();
             var message = arg as SocketUserMessage;
             Logging(arg.ToString());
             if (message is null || message.Author.IsBot || message.Channel.Name != "general") return;
@@ -604,10 +691,10 @@ namespace MyBot
         #endregion
 
 
-        #region Static Methods
 
         private static void Logging(string message)
         {
+            ShowMessage();
             using (StreamWriter sw = File.AppendText(path))
             {
                 sw.WriteLine(message);
@@ -617,6 +704,7 @@ namespace MyBot
 
         public static void SendMessageBotChannel(string result, string action, string user, SocketUserMessage message = null)
         {
+            ShowMessage();
             EmbedBuilder builder = new EmbedBuilder();
             builder.WithColor(Color.Blue)
                 .WithCurrentTimestamp()
@@ -628,6 +716,7 @@ namespace MyBot
 
         private void SendError(SocketUserMessage message, IResult result)
         {
+            ShowMessage();
             EmbedBuilder builder = new EmbedBuilder();
             builder.WithTitle("ERROR")
                 .AddField("Invoking message", message.Content)
@@ -637,9 +726,25 @@ namespace MyBot
                 .WithColor(Color.Red);
             ErrorChannel.SendMessageAsync("", false, builder.Build());
         }
+
+        static void ShowMessage(string message = "In method", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string caller = null)
+        {
+
+            if (StartDebugOn)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                Console.WriteLine(message + " at line " + lineNumber + " (" + caller + ")");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+        }
+
+        private static void DisplayQuestionsInQueueStatus()
+        {
+            var questions = ActiveQuestions.Count(x => !x.Solved);
+            _client.SetGameAsync($"Active questions: {questions}");
+        }
     }
 
-    #endregion
 
 }
 

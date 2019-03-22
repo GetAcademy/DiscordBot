@@ -1,12 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 
-namespace MyBot.Modules
+namespace DiscordBot.Modules
 {
     public class Invite : ModuleBase<SocketCommandContext>
     {

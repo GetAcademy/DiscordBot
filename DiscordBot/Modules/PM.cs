@@ -1,10 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 
-namespace MyBot.Modules
+namespace DiscordBot.Modules
 {
     public class PM : ModuleBase<SocketCommandContext>
     {
@@ -27,7 +25,7 @@ namespace MyBot.Modules
             }
             var userObj = Context.Client.GetUser(recipient);
             await userObj.SendMessageAsync(args);
-            MyBot.Program.SendMessageBotChannel($"Send Private message to user: {userObj.Username}", 
+            Program.SendMessageBotChannel($"Send Private message to user: {userObj.Username}", 
                 "Direct Message",
                 Context.User.Username);
         }

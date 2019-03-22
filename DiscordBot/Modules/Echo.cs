@@ -1,8 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
-using Discord.WebSocket;
 
-namespace MyBot.Modules
+namespace DiscordBot.Modules
 {
     public class Echo : ModuleBase<SocketCommandContext>
     {

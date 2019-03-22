@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 
-namespace MyBot.Modules
+namespace DiscordBot.Modules
 {
     public class Fetch : ModuleBase<SocketCommandContext>
     {
@@ -16,16 +14,16 @@ namespace MyBot.Modules
             await Context.Channel.DeleteMessageAsync(Context.Message.Id);
             EmbedBuilder builder = new EmbedBuilder();
             long.TryParse(id, out var parsedId);
-            foreach (var question in MyBot.Program.ActiveQuestions)
+            foreach (var question in Program.ActiveQuestions)
             {
                 if (question.Id == parsedId)
                 {
                     builder.WithTitle("Spørsmål")
                         .WithDescription(question.Content + "\n" + question.HowToRepeat)
-                        .AddField("Brukernavn: ", MyBot.Program.Guild.GetUser(question.UserId))
+                        .AddField("Brukernavn: ", Program.Guild.GetUser(question.UserId))
                         .AddField("Spørsmål ID", question.Id)
                         .AddField("Dato", question.Time)
-                        .AddField("Assigned Teacher:", MyBot.Program.Guild.GetUser(question.AssignedTo));
+                        .AddField("Assigned Teacher:", Program.Guild.GetUser(question.AssignedTo));
                     break;
                 }
             }

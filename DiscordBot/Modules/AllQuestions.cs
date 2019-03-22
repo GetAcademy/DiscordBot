@@ -2,7 +2,7 @@
 using Discord;
 using Discord.Commands;
 
-namespace MyBot.Modules
+namespace DiscordBot.Modules
 {
     public class AllQuestions : ModuleBase<SocketCommandContext>
     {

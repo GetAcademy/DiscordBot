@@ -1,9 +1,7 @@
-﻿using System.Runtime.Remoting.Contexts;
-using System.Threading.Tasks;
-using Discord;
+﻿using System.Threading.Tasks;
 using Discord.Commands;
 
-namespace MyBot.Modules
+namespace DiscordBot.Modules
 {
     public class Ping : ModuleBase<SocketCommandContext>
     {

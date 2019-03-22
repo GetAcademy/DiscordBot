@@ -1,28 +1,26 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 
-namespace MyBot.Modules
+namespace DiscordBot.Modules
 {
     public class DeleteMessage : ModuleBase<SocketCommandContext>
     {
-        [Command("DeleteMessage"), RequireUserPermission(ChannelPermission.ManageChannels)]
+        [Command("DeleteMessage"), Alias("deletemessage", "DELETEMESSAGE"), RequireUserPermission(ChannelPermission.ManageChannels)]
         public async Task DeleteMessageAsync(string id, [Remainder] string args = "")
         {
             await Context.Channel.DeleteMessageAsync(Context.Message.Id);
 
             if (args.Contains("-ALL"))
             {
-                ulong.TryParse(id, out var userID);
+                ulong.TryParse(id, out var userId);
                 //var messages = new List<ulong>();
                 await ReplyAsync("This function is not yet implemented");
             }
             else
             {
-                ulong.TryParse(id, out var msgID);
-                await Context.Channel.DeleteMessageAsync(msgID);
+                ulong.TryParse(id, out var msgId);
+                await Context.Channel.DeleteMessageAsync(msgId);
             }
         }
     }

@@ -1,22 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
-using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
 
-namespace DiscordBot.Modules
+namespace DiscordBot.Objects
 {
-    public class RegisterCurrentUsers : ModuleBase<SocketCommandContext>
+    public class RegisterUsersAutomatic
     {
-        private string _path;
-        private string _message;
-        [Command("RegisterCurrentUsers"), RequireUserPermission(ChannelPermission.ManageChannels)]
-        [Alias("RCU", "RegisterUsers")]
-        public async Task RegisterCurrentUsersAsync()
+        private static string _path;
+        private static string _message;
+        public static Tuple<string, List<ulong>> Register()
         {
-            await Context.Channel.DeleteMessageAsync(Context.Message.Id);
             var today = DateTime.Now.ToString("dd/MM/yyyy");
             _path = @"userRegistration_" + today + ".txt";
             using (StreamWriter sw = File.CreateText(_path))
@@ -40,10 +34,7 @@ namespace DiscordBot.Modules
             {
                 sw.WriteLine(_message);
             }
-
-            await ReplyAsync("Registered!");
-            await Program.BotChannel.SendFileAsync(_path, "");
-            await Context.User.SendFileAsync(_path, "User registration doc");
+            return new Tuple<string, List<ulong>>(_path, userIds);
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace MyBot.Modules
+namespace DiscordBot.Objects
 {
     public class LoadData
     {

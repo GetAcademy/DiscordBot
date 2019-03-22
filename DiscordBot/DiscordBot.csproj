@@ -158,6 +158,9 @@
     <Compile Include="Objects\LoadData.cs" />
     <Compile Include="Objects\Question.cs" />
     <Compile Include="Modules\RegisterCurrentUsers.cs" />
+    <Compile Include="Objects\RegisterUsersAutomatic.cs" />
+    <Compile Include="Objects\TimerAlerts.cs" />
+    <Compile Include="Objects\TimerAlertsEventArgs.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
