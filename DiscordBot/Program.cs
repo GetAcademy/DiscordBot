@@ -216,7 +216,7 @@ namespace DiscordBot
             Console.WriteLine("12 o' clock daily reminder");
         }
 
-        private void PostFridayReminder(object sender, TimerAlertsEventArgs e)
+        private async void PostFridayReminder(object sender, TimerAlertsEventArgs e)
         {
             Console.WriteLine("Trying to post message");
             EmbedBuilder builder = new EmbedBuilder();
@@ -233,19 +233,19 @@ namespace DiscordBot
                     "vanskelig eller har jeg ikke fått til *ennå*! Husk at man lærer mest når man feiler!");
 
             //StartIt4GeneralTextChannel.SendMessageAsync("", false, builder.Build());
-            _client.GetGuild(_GET_server).GetTextChannel(538290239135940612)
+            await _client.GetGuild(_GET_server).GetTextChannel(538290239135940612)
                 .SendMessageAsync("test", false, builder.Build());
             //BotChannel.SendMessageAsync("", false, builder.Build());
         }
 
-        private void TakeAttendance(object sender, TimerAlertsEventArgs e)
+        private async void TakeAttendance(object sender, TimerAlertsEventArgs e)
         {
             ShowMessage();
-            GeneralChannel.SendMessageAsync("Klokken er nå 10:00. Jeg tar oppmøte");
+            await GeneralChannel.SendMessageAsync("Klokken er nå 10:00. Jeg tar oppmøte");
             var result = RegisterUsersAutomatic.Register();
-            BotChannel.SendMessageAsync($"Active users: {result.Item2.Count}");
+            await BotChannel.SendMessageAsync($"Active users: {result.Item2.Count}");
             result.Item2.ForEach(x => Console.WriteLine(GetServer.GetUser(x).Username));
-            _client.GetUser(112955646701297664).SendFileAsync(result.Item1);
+            await _client.GetUser(112955646701297664).SendFileAsync(result.Item1);
         }
 
 
