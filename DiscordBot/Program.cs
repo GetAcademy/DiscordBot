@@ -113,7 +113,6 @@ namespace DiscordBot
         private readonly ulong _serverName = 540248332069765128;
         private readonly string _botToken = File.ReadAllLines(@"F:\GET\DiscordBot\token.txt")[0];
 
-
         #endregion
 
         #region channel objects
@@ -127,13 +126,17 @@ namespace DiscordBot
         public static SocketVoiceChannel Team1VoiceChannel;
         public static SocketVoiceChannel Team2VoiceChannel;
         public static SocketVoiceChannel StartItGeneralVoiceChannel;
+
+        public static SocketGuild Guild;
+
         #endregion
 
         public static void Main(string[] args)
             => new Program().RunBotAsync().GetAwaiter().GetResult();
 
-        public static SocketGuild Guild;
 
+        
+        #region Tasks
         public async Task RunBotAsync()
         {
             ShowMessage();
@@ -154,28 +157,6 @@ namespace DiscordBot
             await Task.Delay(-1);
 
         }
-
-        private static void Daemon()
-        {
-            if (File.Exists(_daemonPath))
-            {
-                Log(new LogMessage(LogSeverity.Info, "Daemon Startup", "Starting Crash Handler Daemon"));
-                Process.Start(_daemonPath);
-
-            }
-            else
-            {
-                Log(new LogMessage(LogSeverity.Error, "Daemon Startup", "Daemon Path not found"));
-            }
-        }
-
-        private static void InitializeFiles()
-        {
-            InitFile(path, "LOGFILE GET BOT");
-            InitFile(_userPath, "Brukere som har blitt registrert\n");
-        }
-
-        #region Tasks
 
         private Task HandleUserVoiceActionAsync(SocketUser user, SocketVoiceState before, SocketVoiceState after)
         {
@@ -613,6 +594,26 @@ namespace DiscordBot
         #endregion
 
         #region Methods
+        private static void Daemon()
+        {
+            if (File.Exists(_daemonPath))
+            {
+                Log(new LogMessage(LogSeverity.Info, "Daemon Startup", "Starting Crash Handler Daemon"));
+                Process.Start(_daemonPath);
+
+            }
+            else
+            {
+                Log(new LogMessage(LogSeverity.Error, "Daemon Startup", "Daemon Path not found"));
+            }
+        }
+
+        private static void InitializeFiles()
+        {
+            InitFile(path, "LOGFILE GET BOT");
+            InitFile(_userPath, "Brukere som har blitt registrert\n");
+        }
+
         private void UserActionTest(SocketUser user, SocketVoiceState after)
         {
             Console.WriteLine(after.VoiceChannel.Name + " " + user.Username);
