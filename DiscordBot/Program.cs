@@ -31,9 +31,9 @@ namespace DiscordBot
 
         #region text channels //REPLACE WITH NEW VALUES
 
-        private readonly ulong _general = 540248332069765134;
-        private readonly ulong _bot = 550960388376756224;
-        private readonly ulong _errors = 550982436574593044; 
+        private readonly ulong _general = 538289968007610379; //540248332069765134;
+        private readonly ulong _bot = 553158666350624789; //550960388376756224;
+        private readonly ulong _errors = 553158744012357657; //550982436574593044; 
         private readonly ulong _startIT_general = 552165841261690901;
         private readonly ulong _team1 = 552166063723249666;
         private readonly ulong _team2 = 552166088646066189;
@@ -186,9 +186,9 @@ namespace DiscordBot
         {
             ShowMessage();
             #region Testing Server
-            GeneralChannel = _client.GetGuild(_serverName).GetTextChannel(_general);
-            BotChannel = _client.GetGuild(_serverName).GetTextChannel(_bot);
-            ErrorChannel = _client.GetGuild(_serverName).GetTextChannel(_errors);
+            GeneralChannel = _client.GetGuild(_GET_server).GetTextChannel(_general);
+            BotChannel = _client.GetGuild(_GET_server).GetTextChannel(_bot);
+            ErrorChannel = _client.GetGuild(_GET_server).GetTextChannel(_errors);
             StartItGeneralTextChannel = _client.GetGuild(_serverName).GetTextChannel(_startIT_general);
             StartItGeneralVoiceChannel = _client.GetGuild(_serverName).GetVoiceChannel(_generalVoice);
 
@@ -481,7 +481,7 @@ namespace DiscordBot
         private Task MessageDeleted(Cacheable<IMessage, ulong> arg1, ISocketMessageChannel arg2)
         {
             ShowMessage();
-            SendMessageBotChannel($"Message ID: {arg1.Id} Deleted", "Deletion", "Automatic");
+            SendMessageBotChannel($"Message ID: {arg1.Id} Deleted from channel {arg2.Name}\nAuthor {arg1.Value.Author}\nMsg {arg1.Value.Content}", "Deletion", "Automatic");
             Logging("Message ID: " + arg1.Id + " Deleted");
             return Task.CompletedTask;
         }
@@ -577,21 +577,25 @@ namespace DiscordBot
             ShowMessage();
             var message = arg as SocketUserMessage;
             Logging(arg.ToString());
-            if (message is null || message.Author.IsBot || message.Channel.Name != "general") return;
-            var argPos = 0;
-            if (message.HasStringPrefix("bot!", ref argPos) ||
-                message.HasMentionPrefix(_client.CurrentUser, ref argPos))
+            if (message is null || message.Author.IsBot) return;
+            if (message.Channel.Id == 553158838291791872 || message.Channel.Id == _startIT4_general)
             {
-                var context = new SocketCommandContext(_client, message);
-                Console.WriteLine(message);
-                var result = await _commands.ExecuteAsync(context, argPos, _services);
-                if (!result.IsSuccess)
+                var argPos = 0;
+                if (message.HasStringPrefix("bot!", ref argPos) ||
+                    message.HasMentionPrefix(_client.CurrentUser, ref argPos))
                 {
-                    Console.WriteLine(result.ErrorReason);
-                    Logging("!!!ERROR!!!\t" + result.ErrorReason);
-                    SendError(message, result);
+                    var context = new SocketCommandContext(_client, message);
+                    Console.WriteLine(message);
+                    var result = await _commands.ExecuteAsync(context, argPos, _services);
+                    if (!result.IsSuccess)
+                    {
+                        Console.WriteLine(result.ErrorReason);
+                        Logging("!!!ERROR!!!\t" + result.ErrorReason);
+                        SendError(message, result);
+                    }
                 }
             }
+            
         }
         #endregion
 
@@ -664,7 +668,7 @@ namespace DiscordBot
             BotChannel.SendMessageAsync("", false, builder.Build());
         }
 
-        private void SendError(SocketUserMessage message, IResult result)
+        private static void SendError(SocketUserMessage message, IResult result)
         {
             ShowMessage();
             EmbedBuilder builder = new EmbedBuilder();
@@ -677,13 +681,15 @@ namespace DiscordBot
             ErrorChannel.SendMessageAsync("", false, builder.Build());
         }
 
-        static void ShowMessage(string message = "In method", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string caller = null)
+        private static void ShowMessage(string message = "In method", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string caller = null)
         {
 
             if (StartDebugOn)
             {
+                var time = DateTime.Now;
+                
                 Console.ForegroundColor = ConsoleColor.DarkYellow;
-                Console.WriteLine(message + " at line " + lineNumber + " (" + caller + ")");
+                Console.WriteLine($"[{time.ToLocalTime()}]\t{message} at line {lineNumber}({caller})");
                 Console.ForegroundColor = ConsoleColor.White;
             }
         }
@@ -707,7 +713,7 @@ namespace DiscordBot
 
 
             _alerts.RegisterUsers += TakeAttendance;
-            _alerts.FridayReminder += PostFridayReminder;
+            //_alerts.FridayReminder += PostFridayReminder;
             _alerts.TwelveOClock += PostDailyReminder;
         }
 
