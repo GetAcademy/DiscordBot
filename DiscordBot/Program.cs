@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -19,9 +20,7 @@ namespace DiscordBot
 {
     public class Program
     {
-        public static void Main(string[] args)
-            => new Program().RunBotAsync().GetAwaiter().GetResult();
-
+        #region Fields
         #region RoleIDs //REPLACE WITH NEW VALUES
         private readonly ulong _admin = 552055706791182347; //ADMIN ROLE ID
         private readonly ulong _startIT = 544423343978315777; // START IT ROLE ID
@@ -41,58 +40,56 @@ namespace DiscordBot
 
         #region GET_Server
 
-            public static SocketGuild GetServer;
-            public static SocketTextChannel GetServerGeneralChannel;
-            private readonly ulong _GET_server = 349263724856737792;
-            private readonly ulong _GET_general = 491966014142021633;
+        public static SocketGuild GetServer;
+        public static SocketTextChannel GetServerGeneralChannel;
+        private readonly ulong _GET_server = 349263724856737792;
+        private readonly ulong _GET_general = 491966014142021633;
 
-            #region startIT4
+        #region startIT4
 
-                private static readonly ulong _startIT4_Category = 537930722393194504;
-                private readonly ulong _startIT4_general = 538289968007610379;
-                private readonly ulong _startIT4_general_voice = 538290021153767451;
+        private static readonly ulong _startIT4_Category = 537930722393194504;
+        private readonly ulong _startIT4_general = 538289968007610379;
+        private readonly ulong _startIT4_general_voice = 538290021153767451;
 
-                private readonly ulong _startIT4_team1 = 539895437147111425;
-                private readonly ulong _startIT4_team2 = 542680345850544128;
-                private readonly ulong _startIT4_team3 = 539895590104858635;
-                private readonly ulong _startIT4_team4 = 539895614419369994;
-                private readonly ulong _startIT4_team5 = 549911410382209035;
-                private readonly ulong _startIT4_team6 = 550637555360595988;
+        private readonly ulong _startIT4_team1 = 539895437147111425;
+        private readonly ulong _startIT4_team2 = 542680345850544128;
+        private readonly ulong _startIT4_team3 = 539895590104858635;
+        private readonly ulong _startIT4_team4 = 539895614419369994;
+        private readonly ulong _startIT4_team5 = 549911410382209035;
+        private readonly ulong _startIT4_team6 = 550637555360595988;
 
-                private readonly ulong _startIT4_team1_voice = 539895757289816074;
-                private readonly ulong _startIT4_team2_voice = 539896033631797248;
-                private readonly ulong _startIT4_team3_voice = 539896053231648771;
-                private readonly ulong _startIT4_team4_voice = 539896078057603074;
-                private readonly ulong _startIT4_team5_voice = 539896102787219456;
-                private readonly ulong _startIT4_team6_voice = 550613975067262977;
+        private readonly ulong _startIT4_team1_voice = 539895757289816074;
+        private readonly ulong _startIT4_team2_voice = 539896033631797248;
+        private readonly ulong _startIT4_team3_voice = 539896053231648771;
+        private readonly ulong _startIT4_team4_voice = 539896078057603074;
+        private readonly ulong _startIT4_team5_voice = 539896102787219456;
+        private readonly ulong _startIT4_team6_voice = 550613975067262977;
 
-                public static SocketCategoryChannel StartIt4CategoryChannel;
-                public static SocketTextChannel StartIt4GeneralTextChannel;
-                public static SocketVoiceChannel StartIt4GeneralVoiceChannel;
+        public static SocketCategoryChannel StartIt4CategoryChannel;
+        public static SocketTextChannel StartIt4GeneralTextChannel;
+        public static SocketVoiceChannel StartIt4GeneralVoiceChannel;
 
-                public static SocketTextChannel StartIt4Team1TextChannel;
-                public static SocketTextChannel StartIt4Team2TextChannel;
-                public static SocketTextChannel StartIt4Team3TextChannel;
-                public static SocketTextChannel StartIt4Team4TextChannel;
-                public static SocketTextChannel StartIt4Team5TextChannel;
-                public static SocketTextChannel StartIt4Team6TextChannel;
+        public static SocketTextChannel StartIt4Team1TextChannel;
+        public static SocketTextChannel StartIt4Team2TextChannel;
+        public static SocketTextChannel StartIt4Team3TextChannel;
+        public static SocketTextChannel StartIt4Team4TextChannel;
+        public static SocketTextChannel StartIt4Team5TextChannel;
+        public static SocketTextChannel StartIt4Team6TextChannel;
 
-                public static SocketVoiceChannel StartIt4Team1VoiceChannel;
-                public static SocketVoiceChannel StartIt4Team2VoiceChannel;
-                public static SocketVoiceChannel StartIt4Team3VoiceChannel;
-                public static SocketVoiceChannel StartIt4Team4VoiceChannel;
-                public static SocketVoiceChannel StartIt4Team5VoiceChannel;
-                public static SocketVoiceChannel StartIt4Team6VoiceChannel;
+        public static SocketVoiceChannel StartIt4Team1VoiceChannel;
+        public static SocketVoiceChannel StartIt4Team2VoiceChannel;
+        public static SocketVoiceChannel StartIt4Team3VoiceChannel;
+        public static SocketVoiceChannel StartIt4Team4VoiceChannel;
+        public static SocketVoiceChannel StartIt4Team5VoiceChannel;
+        public static SocketVoiceChannel StartIt4Team6VoiceChannel;
+
+        #endregion
+
+        #region startIT5
 
 
-            #endregion
 
-            #region startIT5
-
-            
-
-            #endregion
-
+        #endregion
         #endregion
 
         #region voice channels //REPLACE WITH NEW VALUES
@@ -104,9 +101,6 @@ namespace DiscordBot
         private static DiscordSocketClient _client;
         private CommandService _commands;
         private IServiceProvider _services;
-
-        #region Fields
-
         public static ulong DefaultCategory = _startIT4_Category; //Set this variable according to the Category the bot shall overview
         //private Timer _timer;
         private TimerAlerts _alerts;
@@ -134,7 +128,10 @@ namespace DiscordBot
         public static SocketVoiceChannel Team2VoiceChannel;
         public static SocketVoiceChannel StartItGeneralVoiceChannel;
         #endregion
-        
+
+        public static void Main(string[] args)
+            => new Program().RunBotAsync().GetAwaiter().GetResult();
+
         public static SocketGuild Guild;
 
         public async Task RunBotAsync()
@@ -144,6 +141,7 @@ namespace DiscordBot
             Console.WriteLine("Debug mode? (Y/N)");
             Console.ForegroundColor = ConsoleColor.White;
             SetDebugMode();
+            Daemon();
             InitializeFiles();
             ActiveQuestions = LoadData.ReadQuestions(); //Load all stored questions into memory
             InitializeClient();
@@ -155,6 +153,20 @@ namespace DiscordBot
             await _client.StartAsync();
             await Task.Delay(-1);
 
+        }
+
+        private static void Daemon()
+        {
+            if (File.Exists(_daemonPath))
+            {
+                Log(new LogMessage(LogSeverity.Info, "Daemon Startup", "Starting Crash Handler Daemon"));
+                Process.Start(_daemonPath);
+
+            }
+            else
+            {
+                Log(new LogMessage(LogSeverity.Error, "Daemon Startup", "Daemon Path not found"));
+            }
         }
 
         private static void InitializeFiles()
@@ -185,6 +197,7 @@ namespace DiscordBot
         private Task ReadyAsync()
         {
             ShowMessage();
+
             #region Testing Server
             GeneralChannel = _client.GetGuild(_GET_server).GetTextChannel(_general);
             BotChannel = _client.GetGuild(_GET_server).GetTextChannel(_bot);
@@ -536,7 +549,7 @@ namespace DiscordBot
             await user.AddRoleAsync(role);
         }
 
-        private static Task Log(LogMessage message)
+        public static Task Log(LogMessage message)
         {
             ShowMessage();
             switch (message.Severity)
@@ -558,7 +571,7 @@ namespace DiscordBot
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            Console.WriteLine($"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message} {message.Exception}");
+            Console.WriteLine($"[{DateTime.Now,-19}] ({message.Severity}) {message.Source}: {message.Message} {message.Exception}");
             Logging($"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message} {message.Exception}");
             Console.ResetColor();
 
@@ -694,10 +707,10 @@ namespace DiscordBot
             }
         }
 
-        private static void DisplayQuestionsInQueueStatus()
+        private static async void DisplayQuestionsInQueueStatus()
         {
             var questions = ActiveQuestions.Count(x => !x.Solved);
-            _client.SetGameAsync($"Active questions: {questions}");
+            await _client.SetGameAsync($"Active questions: {questions}");
         }
 
         private void AddEventSubscriptions()
@@ -709,11 +722,11 @@ namespace DiscordBot
             _client.MessageReceived += ReplyUserDmAsync;
             _client.UserLeft += HandleUserLeaveAsync;
             //_client.GuildMemberUpdated += ReportMemberUpdateAsync;
-            //_client.UserVoiceStateUpdated += HandleUserVoiceActionAsync;
+            _client.UserVoiceStateUpdated += HandleUserVoiceActionAsync;
 
 
             _alerts.RegisterUsers += TakeAttendance;
-            //_alerts.FridayReminder += PostFridayReminder;
+            _alerts.FridayReminder += PostFridayReminder;
             _alerts.TwelveOClock += PostDailyReminder;
         }
 

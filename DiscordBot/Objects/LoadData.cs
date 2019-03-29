@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Discord;
+using DiscordBot.Modules;
 
 namespace DiscordBot.Objects
 {
@@ -14,7 +16,7 @@ namespace DiscordBot.Objects
 
         public static List<Question> ReadQuestions()
         {
-            Console.WriteLine("Existing Question Loaded");
+            Program.Log(new LogMessage(LogSeverity.Info, "LoadData", "Existing Questions loaded"));
             if (!File.Exists(_filename))
             {
                 File.CreateText(_filename);

@@ -44,7 +44,7 @@ namespace DiscordBot.Objects
         private void TimerFridayElapsed(object sender, ElapsedEventArgs e)
         {
             var now = DateTime.Now;
-            if (now.Hour >= 10 && now.DayOfWeek == DayOfWeek.Friday && now.Day != _fridayAlerted)
+            if (now.Hour >= 10 && now.Hour < 11 && now.DayOfWeek == DayOfWeek.Friday && now.Day != _fridayAlerted)
             {
                 FridayReminder?.Invoke(this, new TimerAlertsEventArgs());
 

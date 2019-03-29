@@ -93,7 +93,7 @@ namespace DiscordBot.Objects
                 }
             }
 
-            Console.WriteLine("Written question");
+            Console.WriteLine($"Written question. ID: {this.Id}");
         }
 
         void WriteSql()
