@@ -6,7 +6,7 @@ namespace DiscordBot.Modules
 {
     public class PM : ModuleBase<SocketCommandContext>
     {
-        [Command("PM"), RequireUserPermission(ChannelPermission.ManageChannels)]
+        [Command("PM"), RequireUserPermission(GuildPermission.Administrator)]
         [Alias("pm", "Pm", "pM")]
         public async Task PmAsync(string user, [Remainder] string args)
         {

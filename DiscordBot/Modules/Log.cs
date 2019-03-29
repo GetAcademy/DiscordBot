@@ -6,7 +6,7 @@ namespace DiscordBot.Modules
 {
     public class Log : ModuleBase<SocketCommandContext>
     {
-        [Command("Log"), RequireUserPermission(ChannelPermission.ManageChannels)]
+        [Command("Log"), RequireUserPermission(GuildPermission.Administrator)]
         [Alias("log", "LOG")]
         public async Task LogAsync()
         {

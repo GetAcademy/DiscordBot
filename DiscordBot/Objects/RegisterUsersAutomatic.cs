@@ -12,28 +12,24 @@ namespace DiscordBot.Objects
         public static Tuple<string, List<ulong>> Register()
         {
             var today = DateTime.Now.ToString("dd/MM/yyyy");
-            _path = @"userRegistration_" + today + ".txt";
-            using (StreamWriter sw = File.CreateText(_path))
+            _path = @"userRegistration_" + today + ".csv";
+            var lines = new List<string>();
+            
+            var currentUsers = new List<SocketUser>();
+            var userIds = new List<ulong>();
+            using (var sw = File.CreateText(_path))
             {
-                sw.WriteLine("User registration " + today);
-            }
-            List<SocketUser> currentUsers = new List<SocketUser>();
-            List<ulong> userIds = new List<ulong>();
-            foreach (var user in Program.GetServer.Users)
-            {
-                if (user.VoiceChannel != null)
+                foreach (var user in Program.GetServer.Users)
                 {
+                    if (user.VoiceChannel == null || user.VoiceChannel.Category.Id != Program.DefaultCategory) continue;
                     currentUsers.Add(user);
                     userIds.Add(user.Id);
-                    _message += $"{user.Id} \t\tChannel: {user.VoiceChannel} \tUser: {user.Username} \t\t\tNick: {user.Nickname} \n";
+                    sw.WriteLine($"{user.Id},{user.VoiceChannel},{user.Username},{user.Nickname}");
                 }
             }
 
-            _message += $"Number of users: {currentUsers.Count}";
-            using (StreamWriter sw = File.AppendText(_path))
-            {
-                sw.WriteLine(_message);
-            }
+
+            //_message += $"Number of users: {currentUsers.Count}";
             return new Tuple<string, List<ulong>>(_path, userIds);
         }
     }

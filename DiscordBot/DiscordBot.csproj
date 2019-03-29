@@ -152,6 +152,7 @@
     <Compile Include="Modules\Help.cs" />
     <Compile Include="Modules\Invite.cs" />
     <Compile Include="Modules\Links.cs" />
+    <Compile Include="Modules\ListQuestions.cs" />
     <Compile Include="Modules\Log.cs" />
     <Compile Include="Modules\Ping.cs" />
     <Compile Include="Modules\PM.cs" />

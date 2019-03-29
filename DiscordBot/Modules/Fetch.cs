@@ -6,7 +6,7 @@ namespace DiscordBot.Modules
 {
     public class Fetch : ModuleBase<SocketCommandContext>
     {
-        [Command("Fetch"), RequireUserPermission(GuildPermission.ManageChannels)]
+        [Command("Fetch"), RequireUserPermission(GuildPermission.Administrator)]
         [Alias("fetch", "FETCH")]
         [Summary("Fetch a question with the given ID")]
         public async Task FetchAsync(string id)

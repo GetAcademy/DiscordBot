@@ -30,9 +30,10 @@ namespace DiscordBot
         #endregion
 
         #region text channels //REPLACE WITH NEW VALUES
+
         private readonly ulong _general = 540248332069765134;
         private readonly ulong _bot = 550960388376756224;
-        private readonly ulong _errors = 550982436574593044;
+        private readonly ulong _errors = 550982436574593044; 
         private readonly ulong _startIT_general = 552165841261690901;
         private readonly ulong _team1 = 552166063723249666;
         private readonly ulong _team2 = 552166088646066189;
@@ -47,7 +48,7 @@ namespace DiscordBot
 
             #region startIT4
 
-                private readonly ulong _startIT4_Category = 537930722393194504;
+                private static readonly ulong _startIT4_Category = 537930722393194504;
                 private readonly ulong _startIT4_general = 538289968007610379;
                 private readonly ulong _startIT4_general_voice = 538290021153767451;
 
@@ -106,7 +107,8 @@ namespace DiscordBot
 
         #region Fields
 
-        private Timer _timer;
+        public static ulong DefaultCategory = _startIT4_Category; //Set this variable according to the Category the bot shall overview
+        //private Timer _timer;
         private TimerAlerts _alerts;
         private readonly DateTime _startTime = DateTime.Now;
         public static bool StartDebugOn;
@@ -141,113 +143,25 @@ namespace DiscordBot
             Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine("Debug mode? (Y/N)");
             Console.ForegroundColor = ConsoleColor.White;
-            var dbug = Console.ReadLine();
-            if (dbug == "n" || dbug == "N")
-            {
-                StartDebugOn = false;
-            } else if (dbug == "y" || dbug == "y")
-            {
-                StartDebugOn = true;
-            }
-            else
-            {
-                Console.BackgroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine("Unable to parse command, starting in debug as default");
-                Console.BackgroundColor = ConsoleColor.Black;
-                StartDebugOn = true;
-            }
-            if (!File.Exists(path))
-            {
-                // Create a file to write to.
-                using (StreamWriter sw = File.CreateText(path))
-                {
-                    sw.WriteLine("LOGFILE GET BOT");
-                }
-            }
-
-            if (!File.Exists(_userPath))
-            {
-                using (StreamWriter sw2 = File.CreateText(_userPath))
-                {
-                    sw2.WriteLine("Brukere som har blitt registrert\n");
-                }
-            }
-
+            SetDebugMode();
+            InitializeFiles();
             ActiveQuestions = LoadData.ReadQuestions(); //Load all stored questions into memory
-            Logging("\n\nGETsharp Bot startup");
-
-            _client = new DiscordSocketClient();
-            _commands = new CommandService();
-            _services = new ServiceCollection()
-                .AddSingleton(_client)
-                .AddSingleton(_commands)
-                .BuildServiceProvider();
-            _alerts = new TimerAlerts();
-
-            #region client Event handler subscriptions
-            _client.Log += Log; // Adds the local Log() Event handler to the client.
-            _client.UserJoined += AnnounceUserJoined; //Add event handler to client.
-            _client.MessageDeleted += MessageDeleted;
-            _client.Ready += ReadyAsync;
-            _client.MessageReceived += ReplyUserDmAsync;
-            _client.UserLeft += HandleUserLeaveAsync;
-            //_client.GuildMemberUpdated += ReportMemberUpdateAsync;
-            //_client.UserVoiceStateUpdated += HandleUserVoiceActionAsync;
-            #endregion
-
-            #region Timer Alert Subscriptions
-
-            _alerts.RegisterUsers += TakeAttendance;
-            _alerts.FridayReminder += PostFridayReminder;
-            _alerts.TwelveOClock += PostDailyReminder;
-
-            #endregion
-
+            InitializeClient();
+            AddEventSubscriptions();
             DisplayQuestionsInQueueStatus();
 
             await RegisterCommandsAsync();
             await _client.LoginAsync(TokenType.Bot, _botToken);
             await _client.StartAsync();
             await Task.Delay(-1);
+
         }
 
-        private void PostDailyReminder(object sender, TimerAlertsEventArgs e)
+        private static void InitializeFiles()
         {
-            Console.WriteLine("12 o' clock daily reminder");
+            InitFile(path, "LOGFILE GET BOT");
+            InitFile(_userPath, "Brukere som har blitt registrert\n");
         }
-
-        private async void PostFridayReminder(object sender, TimerAlertsEventArgs e)
-        {
-            Console.WriteLine("Trying to post message");
-            EmbedBuilder builder = new EmbedBuilder();
-            builder
-                .WithColor(Color.Blue)
-                .WithDescription(
-                    $"Heisann! Nå er det fredag. Husk å spille inn ukens video!\n Spill inn i OBS og send til " +
-                    $"{_client.GetUser(268754579988938752).Mention}" +
-                    $"/{_client.GetUser(363256000800751616).Mention}" +
-                    $"/{_client.GetUser(112955646701297664).Mention}")
-                .WithImageUrl(@"https://i.pinimg.com/originals/a8/ed/1e/a8ed1e3a3545b69b2aeb8512b6a55917.jpg")
-                .AddField("Husk å:",
-                    "Gå over hva du har lært, men også kanskje aller viktigst hva her vært " +
-                    "vanskelig eller har jeg ikke fått til *ennå*! Husk at man lærer mest når man feiler!");
-
-            //StartIt4GeneralTextChannel.SendMessageAsync("", false, builder.Build());
-            await _client.GetGuild(_GET_server).GetTextChannel(538290239135940612)
-                .SendMessageAsync("test", false, builder.Build());
-            //BotChannel.SendMessageAsync("", false, builder.Build());
-        }
-
-        private async void TakeAttendance(object sender, TimerAlertsEventArgs e)
-        {
-            ShowMessage();
-            await GeneralChannel.SendMessageAsync("Klokken er nå 10:00. Jeg tar oppmøte");
-            var result = RegisterUsersAutomatic.Register();
-            await BotChannel.SendMessageAsync($"Active users: {result.Item2.Count}");
-            result.Item2.ForEach(x => Console.WriteLine(GetServer.GetUser(x).Username));
-            await _client.GetUser(112955646701297664).SendFileAsync(result.Item1);
-        }
-
 
         #region Tasks
 
@@ -257,15 +171,6 @@ namespace DiscordBot
             UserActionTest(user, after);
             Console.WriteLine($"User {user.Username} {user.Id}\nMoved from: {before.VoiceChannel.Name}\nMoved to: {after.VoiceChannel.Name}");
             return Task.CompletedTask;
-        }
-
-        private void UserActionTest(SocketUser user, SocketVoiceState after)
-        {
-            Console.WriteLine(after.VoiceChannel.Name + " " + user.Username);
-            if (after.VoiceChannel.Name == "null")
-            {
-                Console.WriteLine("It's null");
-            }
         }
 
         private Task ReportMemberUpdateAsync(SocketGuildUser before, SocketGuildUser after)
@@ -494,12 +399,14 @@ namespace DiscordBot
         {
             ShowMessage();
             var active = 0;
+            var questions = "";
             foreach (var q in ActiveQuestions)
             {
                 active += q.Solved ? 0 : 1;
+                if (!q.Solved) questions += $"Question ID: {q.Id}\tDate created: {q.Time}\tAssigned: {q.AssignedTo}\n";
             }
 
-            await msg.Author.SendMessageAsync($"Antall aktive spørsmål: {active}");
+            await msg.Author.SendMessageAsync($"Antall aktive spørsmål: {active}\n" + questions);
         }
 
         private static async Task ReplyUnknownCommand(SocketMessage msg)
@@ -578,7 +485,6 @@ namespace DiscordBot
             Logging("Message ID: " + arg1.Id + " Deleted");
             return Task.CompletedTask;
         }
-
 
         private async Task AnnounceUserJoined(SocketGuildUser user)
         {
@@ -666,7 +572,6 @@ namespace DiscordBot
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
         }
 
-        // Handles incoming message on the server
         private async Task HandleCommandAsync(SocketMessage arg)
         {
             ShowMessage();
@@ -690,7 +595,52 @@ namespace DiscordBot
         }
         #endregion
 
+        #region Methods
+        private void UserActionTest(SocketUser user, SocketVoiceState after)
+        {
+            Console.WriteLine(after.VoiceChannel.Name + " " + user.Username);
+            if (after.VoiceChannel.Name == "null")
+            {
+                Console.WriteLine("It's null");
+            }
+        }
 
+        private void PostDailyReminder(object sender, TimerAlertsEventArgs e)
+        {
+            Console.WriteLine("12 o' clock daily reminder");
+        }
+
+        private async void PostFridayReminder(object sender, TimerAlertsEventArgs e)
+        {
+            Console.WriteLine("Trying to post message");
+            EmbedBuilder builder = new EmbedBuilder();
+            builder
+                .WithColor(Color.Blue)
+                .WithDescription(
+                    $"Heisann! Nå er det fredag. Husk å spille inn ukens video!\n Spill inn i OBS og send til " +
+                    $"{_client.GetUser(268754579988938752).Mention}" +
+                    $"/{_client.GetUser(363256000800751616).Mention}" +
+                    $"/{_client.GetUser(112955646701297664).Mention}")
+                .WithImageUrl(@"https://i.pinimg.com/originals/a8/ed/1e/a8ed1e3a3545b69b2aeb8512b6a55917.jpg")
+                .AddField("Husk å:",
+                    "Gå over hva du har lært, men også kanskje aller viktigst hva her vært " +
+                    "vanskelig eller har jeg ikke fått til *ennå*! Husk at man lærer mest når man feiler!");
+
+            //StartIt4GeneralTextChannel.SendMessageAsync("", false, builder.Build());
+            await _client.GetGuild(_GET_server).GetTextChannel(538290239135940612)
+                .SendMessageAsync("test", false, builder.Build());
+            //BotChannel.SendMessageAsync("", false, builder.Build());
+        }
+
+        private async void TakeAttendance(object sender, TimerAlertsEventArgs e)
+        {
+            ShowMessage();
+            await GeneralChannel.SendMessageAsync("Klokken er nå 10:00. Jeg tar oppmøte");
+            var result = RegisterUsersAutomatic.Register();
+            await BotChannel.SendMessageAsync($"Active users: {result.Item2.Count}");
+            result.Item2.ForEach(x => Console.WriteLine(GetServer.GetUser(x).Username));
+            await _client.GetUser(112955646701297664).SendFileAsync(result.Item1);
+        }
 
         private static void Logging(string message)
         {
@@ -743,6 +693,70 @@ namespace DiscordBot
             var questions = ActiveQuestions.Count(x => !x.Solved);
             _client.SetGameAsync($"Active questions: {questions}");
         }
+
+        private void AddEventSubscriptions()
+        {
+            _client.Log += Log; // Adds the local Log() Event handler to the client.
+            _client.UserJoined += AnnounceUserJoined; //Add event handler to client.
+            _client.MessageDeleted += MessageDeleted;
+            _client.Ready += ReadyAsync;
+            _client.MessageReceived += ReplyUserDmAsync;
+            _client.UserLeft += HandleUserLeaveAsync;
+            //_client.GuildMemberUpdated += ReportMemberUpdateAsync;
+            //_client.UserVoiceStateUpdated += HandleUserVoiceActionAsync;
+
+
+            _alerts.RegisterUsers += TakeAttendance;
+            _alerts.FridayReminder += PostFridayReminder;
+            _alerts.TwelveOClock += PostDailyReminder;
+        }
+
+        private static void SetDebugMode()
+        {
+            var dbug = Console.ReadLine();
+            if (dbug == "n" || dbug == "N")
+            {
+                StartDebugOn = false;
+            }
+            else if (dbug == "y" || dbug == "y")
+            {
+                StartDebugOn = true;
+            }
+            else
+            {
+                Console.BackgroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine("Unable to parse command, starting in debug as default");
+                Console.BackgroundColor = ConsoleColor.Black;
+                StartDebugOn = true;
+            }
+        }
+
+        private void InitializeClient()
+        {
+            _client = new DiscordSocketClient();
+            _commands = new CommandService();
+            _services = new ServiceCollection()
+                .AddSingleton(_client)
+                .AddSingleton(_commands)
+                .BuildServiceProvider();
+            _alerts = new TimerAlerts();
+        }
+
+        private static void InitFile(string filePath, string startText)
+        {
+            if (!File.Exists(filePath))
+            {
+                // Create a file to write to.
+                using (StreamWriter sw = File.CreateText(filePath))
+                {
+                    sw.WriteLine(startText);
+                }
+            }
+        }
+
+        #endregion
+
+
     }
 
 

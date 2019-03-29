@@ -6,7 +6,7 @@ namespace DiscordBot.Modules
 {
     public class DeleteMessage : ModuleBase<SocketCommandContext>
     {
-        [Command("DeleteMessage"), Alias("deletemessage", "DELETEMESSAGE"), RequireUserPermission(ChannelPermission.ManageChannels)]
+        [Command("DeleteMessage"), Alias("deletemessage", "DELETEMESSAGE"), RequireUserPermission(GuildPermission.Administrator)]
         public async Task DeleteMessageAsync(string id, [Remainder] string args = "")
         {
             await Context.Channel.DeleteMessageAsync(Context.Message.Id);

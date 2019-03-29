@@ -6,7 +6,7 @@ namespace DiscordBot.Modules
 {
     public class AllQuestions : ModuleBase<SocketCommandContext>
     {
-        [Command("AllQuestions"), RequireUserPermission(GuildPermission.ManageChannels)]
+        [Command("AllQuestions"), RequireUserPermission(GuildPermission.Administrator)]
         [Alias("AQ")]
         public async Task AllQuestionsAsync()
         {
