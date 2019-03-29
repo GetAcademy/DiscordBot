@@ -11,7 +11,7 @@ namespace CrashHandler
 {
     class Program
     {
-        private readonly string _botToken = File.ReadAllLines(@"I:\GET\DiscordBot\CHtoken.txt")[0];
+        private readonly string _botToken = File.ReadAllLines(@"..\..\..\..\..\..\..\..\..\CHtoken.txt")[0];
 
         static void Main(string[] args)
             => new Program().RunBotAsync().GetAwaiter().GetResult();
@@ -32,10 +32,8 @@ namespace CrashHandler
             _client.Log += Log;
 
             _client.UserUpdated += BotActivity;
-            AppDomain.
 
             await RegisterCommandsAsync();
-
             await _client.LoginAsync(TokenType.Bot, _botToken);
             await _client.StartAsync();
             await Task.Delay(-1);
