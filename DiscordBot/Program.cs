@@ -476,8 +476,30 @@ namespace DiscordBot
         private Task MessageDeleted(Cacheable<IMessage, ulong> arg1, ISocketMessageChannel arg2)
         {
             ShowMessage();
-            SendMessageBotChannel($"Message ID: {arg1.Id} Deleted from channel {arg2.Name}\nAuthor {arg1.Value.Author}\nMsg {arg1.Value.Content}", "Deletion", "Automatic");
-            Logging("Message ID: " + arg1.Id + " Deleted");
+            if (arg1.Value is null)
+            {
+                SendMessageBotChannel(
+                    $"Message ID: {arg1.Id} Deleted from channel {arg2.Name}",
+                    "Deletion",
+                    "Automatic");
+
+                Logging("Message ID: " + arg1.Id + " Deleted");
+                Log(new LogMessage(LogSeverity.Info, "Delete", $"Message: {arg1.Id} deleted"));
+            }
+            else
+            {
+                SendMessageBotChannel(
+                    $"Message ID: {arg1.Value.Id} Deleted from channel {arg2.Name}\n" +
+                    $"Author {arg1.Value.Author}\n" +
+                    $"Msg {arg1.Value.Content}",
+                    "Deletion",
+                    "Automatic");
+
+                Logging("Message ID: " + arg1.Id + " Deleted content: \n" + arg1.Value.Content);
+                Log(new LogMessage(LogSeverity.Info, "Delete", $"Message: {arg1.Value.Id} deleted"));
+            }
+            Console.WriteLine(arg1.Value.Content);
+
             return Task.CompletedTask;
         }
 
