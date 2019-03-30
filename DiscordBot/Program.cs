@@ -213,9 +213,6 @@ namespace DiscordBot
 
 
             #endregion
-
-
-            BotChannel.SendMessageAsync("GETsharp Bot is running!");
             return Task.CompletedTask;
         }
 
@@ -628,6 +625,13 @@ namespace DiscordBot
             else
             {
                 Log(new LogMessage(LogSeverity.Error, "Daemon Startup", "Daemon Path not found"));
+                Console.WriteLine("!!DAEMON PATH IS NOT VALID OR DAEMON PROGRAM NOT FOUND!!");
+                Console.WriteLine("Start bot without Daemon? (y/n)");
+                var input = Console.ReadLine();
+                if (input != null && !(input.Contains("y") || input.Contains("Y")))
+                {
+                    throw new Exception("DAEMON NOT FOUND, Startup aborted by user");
+                }
             }
         }
 

@@ -33,7 +33,7 @@ namespace DiscordBot.Objects
         private void TimerTwelveElapsed(object sender, ElapsedEventArgs e)
         {
             var now = DateTime.Now;
-            if (now.Hour >= 12 && now.Date.Day != _lastDateAlertedInfo)
+            if (now.Hour >= 12 && now.Hour < 13 && now.Date.Day != _lastDateAlertedInfo)
             {
                 TwelveOClock?.Invoke(this, new TimerAlertsEventArgs());
 
