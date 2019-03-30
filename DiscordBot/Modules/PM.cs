@@ -18,11 +18,10 @@ namespace DiscordBot.Modules
                     if (usr.Username == user)
                     {
                         recipient = usr.Id;
-                        
                     }
                 }
-                //throw new System.ArgumentException($"User \"{user}\" not found in current server"); 
             }
+
             var userObj = Context.Client.GetUser(recipient);
             await userObj.SendMessageAsync(args);
             Program.SendMessageBotChannel($"Send Private message to user: {userObj.Username}", 

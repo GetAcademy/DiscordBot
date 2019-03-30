@@ -144,7 +144,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Modules\Aerobics.cs" />
     <Compile Include="Modules\AllQuestions.cs" />
     <Compile Include="Modules\Boilerplate.cs" />
     <Compile Include="Modules\DeleteMessage.cs" />

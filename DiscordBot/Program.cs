@@ -5,14 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using DiscordBot.Objects;
 using Microsoft.Extensions.DependencyInjection;
-using DiscordBot.Modules;
 using LogMessage = Discord.LogMessage;
 
 
@@ -104,7 +102,7 @@ namespace DiscordBot
         public static ulong DefaultCategory = _startIT4_Category; //Set this variable according to the Category the bot shall overview
         //private Timer _timer;
         private TimerAlerts _alerts;
-        private readonly DateTime _startTime = DateTime.Now;
+        //public readonly DateTime startTime 
         public static bool StartDebugOn;
         private static readonly string path = @"logfile.txt";
         private static readonly string _userPath = @"users.txt";
@@ -252,26 +250,30 @@ namespace DiscordBot
 
                 if (userRoles.Count > 0)
                 {
+                    var roles = "";
                     foreach (var userRole in userRoles)
                     {
-                        switch (userRole.Name.ToString())
+                        switch (userRole.Name)
                         {
                             //if student, Create a question object
                             case "STUDENT":
+                                roles += userRole + ", ";
                                 await ReplyStudent(msg, userRole);
                                 break;
 
                             // if Admin this may be a command to the bot
                             case "ADMIN":
-                                SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
+                                roles += userRole.Name + ", ";
                                 break;
 
                             // if Teacher this message may be a broadcast to students
                             case "TEACHER":
+                                roles += userRole.Name + ", ";
                                 await ReplyTeacher(msg, userRole);
                                 break;
                         }
                     }
+                    SendMessageBotChannel($"User Role: {roles} replying to bot", "LOG", "Server");
                 }
 
 
@@ -310,7 +312,7 @@ namespace DiscordBot
         private static async Task ReplyTeacher(SocketMessage msg, SocketRole userRole)
         {
             ShowMessage();
-            SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
+            
             if (msg.Content.Contains("?Q"))
             {
                 if (ActiveQuestions.Any(question => !question.Solved))
@@ -436,7 +438,6 @@ namespace DiscordBot
         private async Task ReplyStudent(SocketMessage msg, SocketRole userRole)
         {
             ShowMessage();
-            SendMessageBotChannel($"User Role: {userRole.Name} replying to bot", "LOG", "Server");
             if (msg.Content.Contains("!question"))
             {
                 var q = CreateQuestion(msg);
