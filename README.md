@@ -16,6 +16,7 @@ GETsharp Discord bot readme. Dette er en bot for startIT/getIT kurs for å hjelp
 - [ ] Sende ressursjlinker til brukere i DM
 - [ ] Registrere oppmøte via kommando
 - [ ] Registrere video via kommando/evt via DM fra elev til BOT-account
+- [ ] 
 ***
 ####  Milestones
 * <s>Basic Logging og kontakt med Discord server</s>
@@ -37,3 +38,14 @@ GETsharp Discord bot readme. Dette er en bot for startIT/getIT kurs for å hjelp
 ***
 #### How to
 ***
+
+
+#### Info
+** Hvordan skal botten kontakte elever for oppmøtetagning
+I backend må programmet ha en database med oversikt over alle elever. Dette kan være ett oppsett med elevenes discord ID som nøkler.
+Denne databasen må inneholde informasjon per dag som sier om eleven har meldt oppmøte (svart på bottens meldinger klokken 9 og klokken 13.), hva eleven har svart, hvor mange spørsmål eleven har stilt osv.
+På ukentlig basis må den ha oversikt over videoinlevering og om ukentlig samtale med lærer har blitt gjennomført. 
+
+
+Botten skal også sende en oversikt over elever i voice channels i sin egen kanal 
+*** 
