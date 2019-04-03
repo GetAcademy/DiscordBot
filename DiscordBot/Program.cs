@@ -680,7 +680,7 @@ namespace DiscordBot
         private async void TakeAttendance(object sender, TimerAlertsEventArgs e)
         {
             ShowMessage();
-            await GeneralChannel.SendMessageAsync("Klokken er nå 10:00. Jeg tar oppmøte");
+            //await GeneralChannel.SendMessageAsync("Klokken er nå 10:00. Jeg tar oppmøte");
             var result = RegisterUsersAutomatic.Register();
             await BotChannel.SendMessageAsync($"Active users: {result.Item2.Count}");
             result.Item2.ForEach(x => Console.WriteLine(GetServer.GetUser(x).Username));
