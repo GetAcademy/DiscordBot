@@ -682,7 +682,9 @@ namespace DiscordBot
             ShowMessage();
             //await GeneralChannel.SendMessageAsync("Klokken er nå 10:00. Jeg tar oppmøte");
             var result = RegisterUsersAutomatic.Register();
-            await BotChannel.SendMessageAsync($"Active users: {result.Item2.Count}");
+            var users = "";
+            result.Item2.ForEach(element => users += element.ToString() + "\n");
+            await BotChannel.SendMessageAsync($"Active users: \n " + users);
             result.Item2.ForEach(x => Console.WriteLine(GetServer.GetUser(x).Username));
             await _client.GetUser(112955646701297664).SendFileAsync(result.Item1);
         }
