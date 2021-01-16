@@ -109,7 +109,7 @@ namespace DiscordBot
         private static readonly string _daemonPath = @"crashHandler.exe";
         public static List<Question> ActiveQuestions = new List<Question>();
         private readonly ulong _serverName = 540248332069765128;
-        private readonly string _botToken = File.ReadAllLines(@"..\..\..\token.txt")[0];
+        private readonly string _botToken = File.ReadAllLines(@"..\..\..\..\..\..\token.txt")[0];
 
         #endregion
 
@@ -532,22 +532,18 @@ namespace DiscordBot
                 , false, build.Build());
 
             await channel.SendMessageAsync($"Velkommen til General, {user.Mention}!");
-            //await user.AddRoleAsync(_guild.GetRole(_startIT));
+            await user.AddRoleAsync(_client.GetGuild(349263724856737792).GetRole(_startIT));
 
         }
 
-        private static async Task AssignRole(SocketGuildUser user)
+        public static async Task AssignStudentRole(SocketGuildUser user)
         {
             ShowMessage();
             //var user = Context.User;
             //var role = GetServer.Roles.FirstOrDefault(x => x.Name == "STUDENT"); //GET SERVER
             var role = Guild.Roles.FirstOrDefault(x => x.Name == "STUDENT"); //TESTING SERVER
-            foreach (var role2 in GetServer.Roles)
-            {
-                Console.WriteLine(role2.Name);
-            }
-
-            await user.AddRoleAsync(role);
+            Console.Write($"Role type {role.Name} \nUser name {user.Username}\n");
+            await (user as IGuildUser).AddRoleAsync(role);
         }
 
         public static Task Log(LogMessage message)
@@ -680,10 +676,13 @@ namespace DiscordBot
         private async void TakeAttendance(object sender, TimerAlertsEventArgs e)
         {
             ShowMessage();
-            //await GeneralChannel.SendMessageAsync("Klokken er nå 10:00. Jeg tar oppmøte");
+            if (StartDebugOn)
+            {
+                Console.Write("Taking attendance");
+            }
             var result = RegisterUsersAutomatic.Register();
             var users = "";
-            result.Item2.ForEach(element => users += element.ToString() + "\n");
+            result.Item2.ForEach(element => users += GetServer.GetUser(element).Username + "\n");
             await BotChannel.SendMessageAsync($"Active users: \n " + users);
             result.Item2.ForEach(x => Console.WriteLine(GetServer.GetUser(x).Username));
             await _client.GetUser(112955646701297664).SendFileAsync(result.Item1);
@@ -702,7 +701,7 @@ namespace DiscordBot
         public static void SendMessageBotChannel(string result, string action, string user, SocketUserMessage message = null)
         {
             ShowMessage();
-            EmbedBuilder builder = new EmbedBuilder();
+            var builder = new EmbedBuilder();
             builder.WithColor(Color.Blue)
                 .WithCurrentTimestamp()
                 .AddField("Action:", action)
@@ -714,7 +713,7 @@ namespace DiscordBot
         private static void SendError(SocketUserMessage message, IResult result)
         {
             ShowMessage();
-            EmbedBuilder builder = new EmbedBuilder();
+            var builder = new EmbedBuilder();
             builder.WithTitle("ERROR")
                 .AddField("Invoking message", message.Content)
                 .AddField("Invoking user", message.Author)
